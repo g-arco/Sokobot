@@ -38,11 +38,4 @@ public  class Position {
         return y;
     }
 
-    public int hashCode()
-    {
-        int hash = 17;
-        hash = 31*hash + x;
-        hash = 31*hash + y;
-        return hash;
-    }
 }

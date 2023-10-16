@@ -51,15 +51,12 @@ public class SokoBot {
 
       // Add the initial state to the open set
       State initialState = initializeState();// Define how to initialize the initial state.
-        System.out.println("InState Map");
-        for(int x = 0; x < initialState.getMap().getItemsData().length; x++) {
-            for (int y = 0; y < initialState.getMap().getItemsData().length; y++)
-                System.out.print(initialState.getMap().getItemsData()[x][y]);
-            System.out.println();
-        }
 
       ArrayList<State> goalStates = generateGoalStates(initialState); // Define how to generate goal states.
-        System.out.println("+++++++");
+
+
+        ArrayList<State> visitedStates = new ArrayList<>();
+
         for (int s = 0; s < goalStates.size(); s++)
         {
             for(int x = 0; x < goalStates.get(s).stateData.length; x++) {
@@ -69,11 +66,6 @@ public class SokoBot {
             }
         }
 
-        for(int x = 0; x < initialState.stateData.length; x++) {
-            for (int y = 0; y < initialState.stateData[x].length; y++)
-                System.out.print(initialState.stateData[x][y]);
-            System.out.println();
-        }
 
         System.out.println("InState Map");
         for(int x = 0; x < initialState.map.getItemsData().length; x++) {
@@ -89,8 +81,15 @@ public class SokoBot {
 
         System.out.println("+++++++");
       while (!openSet.isEmpty()) {
-        State currentState = openSet.poll();
+          State currentState = openSet.poll();
+
+          while (visitedStates.contains(currentState))
+            currentState = openSet.poll();
+
+          visitedStates.add(currentState);
           System.out.println("+++++++");
+
+          visitedStates.add(currentState);
 
         if (goalStates.contains(currentState)) {
             System.out.println(actions.size());
@@ -99,7 +98,7 @@ public class SokoBot {
 
         int currentCost = cost(actions.get(currentState));
 
-        System.out.println("InState");
+        System.out.println("CurrState");
           for(int x = 0; x < currentState.stateData.length; x++) {
               for (int y = 0; y < currentState.stateData[x].length; y++)
                   System.out.print(currentState.stateData[x][y]);
@@ -109,7 +108,7 @@ public class SokoBot {
         List<State> successors = generateSuccessors(currentState.getMap(),currentState);
 
         for (State successor : successors) {
-            tentativeCost = currentCost + 1;
+            int   tentativeCost = currentCost + 1;
           int fValue = successor.setFValue(tentativeCost);
           System.out.println(fValue + " " + tentativeCost);
 
@@ -193,12 +192,6 @@ public class SokoBot {
         int[] moveY = {-1, 1, 0, 0};
         String[] moveActions = {"u", "d", "l", "r"};
 
-        for(int z = 0; z < currItemData.getMapMatrix().length; z++) {
-            for (int j = 0; j < currItemData.getMapMatrix()[z].length; j++)
-                System.out.print(currItemData.getMapMatrix()[z][j]);
-            System.out.println();
-        }
-
         for (int i = 0; i < moveX.length; i++) {
             int newX = playerX + moveX[i];
             int newY = playerY + moveY[i];
@@ -212,7 +205,7 @@ public class SokoBot {
                 System.out.println(box.getX() + " "+ box.getY() + " "+ newX+ " "+ newY);
                 if (box.equals(new Position(newX, newY)))
                 {
-                    if (!currItemData.isWall(newX+ moveX[i], newY+ moveY[i])) {
+                    if (!currItemData.isWall(newX+ moveX[i], newY+ moveY[i]) && currItemData.getItemsData()[newY][newX] != '$') {
                         positions = new Position(newX,newY);
                         currItemData = currState.setNewPosition(currItemData, currIndex, positions, box, playerPosition, moveX[i], moveY[i]);
                         PuzzleMap map = new PuzzleMap(currItemData);

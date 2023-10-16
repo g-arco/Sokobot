@@ -64,11 +64,12 @@ public class State{
         cacheHeuristic();
         this.fValue = heuristic;
 
+        /*
         for(int  z= 0; z< map.getMapMatrix().length; z++) {
             for (int j = 0; j < map.getMapMatrix()[z].length; j++)
                 System.out.print(map.getMapMatrix()[z][j]);
             System.out.println();
-        }
+        }*/
     }
 
     public State(PuzzleMap map, char[][] itemsData, char[][] mapData) throws Exception
@@ -366,7 +367,6 @@ public class State{
                                 System.out.print(board[z][j]);
                             System.out.println();
                         }
-                        System.out.println("end.");
 
                     }
 
