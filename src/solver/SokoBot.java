@@ -51,6 +51,13 @@ public class SokoBot {
 
       // Add the initial state to the open set
       State initialState = initializeState();// Define how to initialize the initial state.
+        System.out.println("InState Map");
+        for(int x = 0; x < initialState.getMap().getItemsData().length; x++) {
+            for (int y = 0; y < initialState.getMap().getItemsData().length; y++)
+                System.out.print(initialState.getMap().getItemsData()[x][y]);
+            System.out.println();
+        }
+
       ArrayList<State> goalStates = generateGoalStates(initialState); // Define how to generate goal states.
         System.out.println("+++++++");
         for (int s = 0; s < goalStates.size(); s++)
@@ -68,6 +75,12 @@ public class SokoBot {
             System.out.println();
         }
 
+        System.out.println("InState Map");
+        for(int x = 0; x < initialState.map.getItemsData().length; x++) {
+            for (int y = 0; y < initialState.map.getItemsData().length; y++)
+                System.out.print(initialState.map.getItemsData()[x][y]);
+            System.out.println();
+        }
 
       openSet.add(initialState);
       costToReach.put(initialState, 0);
@@ -93,14 +106,7 @@ public class SokoBot {
               System.out.println();
           }
 
-          System.out.println("InState Map");
-          for(int x = 0; x < currentState.map.getItemsData().length; x++) {
-              for (int y = 0; y < currentState.map.getItemsData().length; y++)
-                  System.out.print(currentState.map.getItemsData()[x][y]);
-              System.out.println();
-          }
-
-        List<State> successors = generateSuccessors(currentState.map,currentState);
+        List<State> successors = generateSuccessors(currentState.getMap(),currentState);
 
         for (State successor : successors) {
             tentativeCost = currentCost + 1;
@@ -155,14 +161,19 @@ public class SokoBot {
         }
         System.out.println("x");
         PuzzleMap map = new PuzzleMap(this.mapData, this.itemsData, width, height);
+        for(int  z= 0; z< map.getItemsData().length; z++) {
+            for (int j = 0; j < map.getItemsData()[z].length; j++)
+                System.out.print(map.getItemsData()[z][j]);
+            System.out.println();
+        }
         System.out.println("x");
         return new State(map, this.itemsData, this.mapData);
     }
 
-    private ArrayList<State> generateSuccessors(PuzzleMap stateMap, State state){
+    private ArrayList<State> generateSuccessors(PuzzleMap stateMap, State state) throws Exception {
         ArrayList<State> newStates = new ArrayList<>();
         Position positions = new Position();
-        State currState = state;
+        State currState = new State(state);
         PuzzleMap currItemData = new PuzzleMap(this.mapData, state.stateData, this.width, this.height);
 
 
@@ -172,7 +183,6 @@ public class SokoBot {
                 System.out.print(currItemData.getItemsData()[x][y]);
             System.out.println();
         }
-
 
         Position playerPosition = currState.player;
         int playerX = playerPosition.getX();
@@ -193,15 +203,18 @@ public class SokoBot {
             int newX = playerX + moveX[i];
             int newY = playerY + moveY[i];
 
+            currItemData = new PuzzleMap(this.mapData, state.stateData, this.width, this.height);
+
             int currIndex = 0;
             for (Position box : currState.boxes)
             {
+                currItemData = new PuzzleMap(this.mapData, state.stateData, this.width, this.height);
                 System.out.println(box.getX() + " "+ box.getY() + " "+ newX+ " "+ newY);
                 if (box.equals(new Position(newX, newY)))
                 {
-                    if (currState.isFree(newX+ moveX[i], newY+ moveY[i])) {
+                    if (!currItemData.isWall(newX+ moveX[i], newY+ moveY[i])) {
                         positions = new Position(newX,newY);
-                        currItemData = currState.setNewPosition(currItemData, currIndex, positions, box, playerPosition,1);
+                        currItemData = currState.setNewPosition(currItemData, currIndex, positions, box, playerPosition, moveX[i], moveY[i]);
                         PuzzleMap map = new PuzzleMap(currItemData);
                         newStates.add(new State(map, currState, moveActions[i], currItemData.getItemsData()));
                         System.out.println(currIndex);
@@ -210,9 +223,9 @@ public class SokoBot {
                 currIndex++;
             }
 
-            if (currState.isFree(newX, newY)) {
+            if (!currItemData.isWall(newX, newY) && currItemData.getItemsData()[newY][newX] != '$') {
                 positions = new Position(newX,newY);
-                currItemData = currState.setNewPosition(currItemData, 0, positions, playerPosition, playerPosition,0);
+                currItemData = currState.setNewPosition(currItemData, 0, positions, playerPosition, playerPosition,0, 0);
                 PuzzleMap map = new PuzzleMap(currItemData);
                 newStates.add(new State(map, currState, moveActions[i], currItemData.getItemsData()));
             }

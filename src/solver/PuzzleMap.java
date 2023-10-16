@@ -18,28 +18,32 @@ public class PuzzleMap {
         this.itemsData = itemsData;
 
 
-
-
         this.mapMatrix = new char[height][width];
         for (char[] row : this.mapMatrix)
             Arrays.fill(row, ' ');
         for (int i = 0; i < itemsData.length; i++) {
             for (int j = 0; j < itemsData[i].length; j++) {
                 char c = itemsData[i][j];
-                if (c == '@' || (c == '$' && mapData[i][j] != '.')) {
+
+                if ((c == '@' && mapData[i][j] != '.')|| (c == '$' && mapData[i][j] != '.')) {
                     this.mapMatrix[i][j] = itemsData[i][j];
-                }
-                else if (c == '$' && mapData[i][j] == '.')
-                {
-                    this.mapMatrix[i][j] = '*';
                 }
                 else if (mapData[i][j] == '.')
                 {
-                    this.mapMatrix[i][j] = '.';
+                    if (c == '$')
+                    {
+                        this.mapMatrix[i][j] = '*';
+                    }
+                    else if (c == '@')
+                    {
+                        this.mapMatrix[i][j] = '+';
+                    }
+                    else
+                        this.mapMatrix[i][j] = '.';
                 }
                 else if (mapData[i][j] == '#')
                 {
-                    this.mapMatrix[i][j] = '#';
+                        this.mapMatrix[i][j] = '#';
                 }
             }
         }
@@ -66,34 +70,97 @@ public class PuzzleMap {
         this.itemsData = new char[map.getItemsData().length][map.getItemsData()[0].length];
         for (int i = 0; i < map.getItemsData().length; i++)
             for (int j = 0; j < map.getItemsData()[i].length; j++)
-                this.mapData[i][j] = map.getItemsData()[i][j];
+                this.itemsData[i][j] = map.getItemsData()[i][j];
 
 
-        this.mapMatrix =new char[height][width];
+        this.mapMatrix = new char[height][width];
+        for (char[] row : this.mapMatrix)
+            Arrays.fill(row, ' ');
+        for (int i = 0; i < itemsData.length; i++) {
+            for (int j = 0; j < itemsData[i].length; j++) {
+                char c = itemsData[i][j];
 
-        for (int i = 0; i < map.getMapMatrix().length; i++)
-            for (int j = 0; j < map.getMapMatrix()[i].length; j++)
-                this.mapMatrix[i][j] = map.getMapMatrix()[i][j];
+                if ((c == '@' && mapData[i][j] != '.')|| (c == '$' && mapData[i][j] != '.')) {
+                    this.mapMatrix[i][j] = itemsData[i][j];
+                }
+                else if (mapData[i][j] == '.')
+                {
+                    if (c == '$')
+                    {
+                        this.mapMatrix[i][j] = '*';
+                    }
+                    else if (c == '@')
+                    {
+                        this.mapMatrix[i][j] = '+';
+                    }
+                    else
+                        this.mapMatrix[i][j] = '.';
+                }
+                else if (mapData[i][j] == '#')
+                {
+                    this.mapMatrix[i][j] = '#';
+                }
+            }
+        }
 
     }
 
     public void setMapMatrix(char[][] board) {
+        System.out.println("OLD MATRIX");
+        for (int i = 0; i < this.mapMatrix.length; i++)
+        {
+            for (int j = 0; j < this.mapMatrix[i].length; j++)
+                System.out.print(this.mapMatrix[i][j]);
+            System.out.println();
+        }
+
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 char c = board[i][j];
-                if (c == '@' || c == '$') {
-                    mapMatrix[i][j] = board[i][j];
-                }
-                else if (c == '$' && mapMatrix[i][j] == '.')
+                //System.out.println(mapMatrix[i][j]);
+                if (c == ' ')
                 {
-                    mapMatrix[i][j] = '*';
+                    if (mapMatrix[i][j] == ' ' || mapMatrix[i][j] == '#' || mapMatrix[i][j] == '.')
+                        mapMatrix[i][j] = mapMatrix[i][j];
+                    else if (mapMatrix[i][j] == '@'|| mapMatrix[i][j] == '$' || mapMatrix[i][j] == '+' || mapMatrix[i][j] == '*') {
+                        if (mapMatrix[i][j] == '+' || mapMatrix[i][j] == '*')
+                            mapMatrix[i][j] = '.';
+                        else
+                            mapMatrix[i][j] = ' ';
+                    }
+                }
+                else if (mapMatrix[i][j] != '#' && c != ' ')
+                {
+                    if ((c == '@' || c == '$') &&  mapMatrix[i][j] != '.') {
+                        mapMatrix[i][j] = board[i][j];
+                    }
+                    else if (c == '$' && mapMatrix[i][j] == '.')
+                    {
+                        mapMatrix[i][j] = '*';
+                    }
+                    else if (c == '@' && mapMatrix[i][j] == '.')
+                    {
+                        mapMatrix[i][j] = '+';
+                    }
+                    else
+                        mapMatrix[i][j] = mapMatrix[i][j];
                 }
             }
         }
+
+        System.out.println("NEW MATRIX");
+        for (int i = 0; i < this.mapMatrix.length; i++)
+        {
+            for (int j = 0; j < this.mapMatrix[i].length; j++)
+                System.out.print(this.mapMatrix[i][j]);
+            System.out.println();
+        }
+
     }
 
     public void setItemsData(char[][] itemsData) {
         this.itemsData = itemsData;
+        this.setMapMatrix(itemsData);
     }
 
     public int getHeight()
@@ -119,11 +186,25 @@ public class PuzzleMap {
         if (x < this.height && y < this.width)
         {
             char c = mapMatrix[y][x];
-            return (c == ' ' || c == '$' || c == '@');
+            return (c == ' ' || c == '$' || c == '@' || c == '.');
         }
         else
             return false;
     }
+
+    public boolean isBlank(int x, int y)
+    {
+
+        if (x < this.height && y < this.width)
+        {
+            char c = mapMatrix[y][x];
+            return (c == ' ' || c == '@');
+        }
+        else
+            return false;
+    }
+
+
 
     public boolean isWall(int x, int y)
     {

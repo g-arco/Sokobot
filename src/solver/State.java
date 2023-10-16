@@ -47,6 +47,17 @@ public class State{
         else
             this.actions = parent.actions;
 
+
+        this.itemsData = new char[stateData.length][stateData[0].length];
+        for (int i = 0; i < stateData.length; i++)
+            for (int j = 0; j < stateData[i].length; j++)
+                this.itemsData[i][j] = stateData[i][j];
+
+        this.mapData = new char[parent.getMapData().length][parent.getMapData()[0].length];
+        for (int i = 0; i < parent.getMapData().length; i++)
+            for (int j = 0; j < parent.getMapData()[i].length; j++)
+                this.mapData[i][j] = parent.getMapData()[i][j];
+
         this.actions.add(newAction);
         this.stateData = stateData;
         this.parent = parent;
@@ -65,7 +76,6 @@ public class State{
         this.map = new PuzzleMap(map);
         //Read in the initial position of the boxes and the player.
         this.itemsData = new char[itemsData.length][itemsData[0].length];
-
         for (int i = 0; i < itemsData.length; i++)
             for (int j = 0; j < itemsData[i].length; j++)
                 this.itemsData[i][j] = itemsData[i][j];
@@ -87,10 +97,21 @@ public class State{
     {
         this.map = new PuzzleMap(state.map);
         //Read in the initial position of the boxes and the player.
-        this.player = state.player;
-        this.boxes = state.boxes;
-        this.goals = state.goals;
-        this.stateData = state.stateData;
+        this.itemsData = new char[state.getItemsData().length][state.getItemsData()[0].length];
+
+        for (int i = 0; i < state.getItemsData().length; i++)
+            for (int j = 0; j < state.getItemsData()[i].length; j++)
+                this.itemsData[i][j] = state.getItemsData()[i][j];
+
+        this.mapData = new char[state.getMapData().length][state.getMapData()[0].length];
+        for (int i = 0; i < state.getMapData().length; i++)
+            for (int j = 0; j < state.getMapData()[i].length; j++)
+                this.mapData[i][j] = state.getMapData()[i][j];
+
+        this.player = findPlayer(this.itemsData);
+        this.boxes = findBoxes(this.itemsData);
+        this.goals = findGoals(this.mapData);
+        this.stateData = this.itemsData;
         cacheHeuristic();
         this.fValue = heuristic;
     }
@@ -222,7 +243,7 @@ public class State{
             int x = goals.getX();
             int y = goals.getY();
             //System.out.println(i + " "+ board[y][x]);
-            if(pMap.isEmpty(x+1, y)){
+            if(pMap.isBlank(x+1, y)){
                 board[player.getY()][player.getX()] = ' ';
                 board[y][x+1] = '@';
                 PuzzleMap newMap = new PuzzleMap(mapData, board, width, height);
@@ -236,7 +257,7 @@ public class State{
                 board[player.getY()][player.getX()] = '@';
 
             }
-            if(pMap.isEmpty(x-1, y)){
+            if(pMap.isBlank(x-1, y)){
                 board[player.getY()][player.getX()] = ' ';
                 board[y][x-1] = '@';
                 PuzzleMap newMap = new PuzzleMap(mapData, board, width, height);
@@ -250,7 +271,7 @@ public class State{
                 board[player.getY()][player.getX()] = '@';
 
             }
-            if(pMap.isEmpty(x, y+1)){
+            if(pMap.isBlank(x, y+1)){
                 board[player.getY()][player.getX()] = ' ';
                 board[y+1][x] = '@';
                 PuzzleMap newMap = new PuzzleMap(mapData, board, width, height);
@@ -264,7 +285,7 @@ public class State{
                 board[player.getY()][player.getX()] = '@';
 
             }
-            if(pMap.isEmpty(x, y-1)){
+            if(pMap.isBlank(x, y-1)){
                 board[player.getY()][player.getX()] = ' ';
                 board[y-1][x] = '@';
                 PuzzleMap newMap = new PuzzleMap(mapData, board, width, height);
@@ -284,13 +305,17 @@ public class State{
 
     }
 
-    public PuzzleMap setNewPosition(PuzzleMap boardMap, int boxIndex, Position newPos, Position oldPos, Position player, int isBox){
+    public PuzzleMap setNewPosition(PuzzleMap boardMap, int boxIndex, Position newPos, Position oldPos, Position addPos, int boxX, int boxY){
 
         int keyX = newPos.getX();
         int keyY = newPos.getY();
         int oldX = oldPos.getX();
         int oldY = oldPos.getY();
-        char[][] board = boardMap.getItemsData();
+        char[][] board = new char[boardMap.getItemsData().length][boardMap.getItemsData()[0].length];
+
+        for (int i = 0; i < boardMap.getItemsData().length; i++)
+            for (int k = 0; k < boardMap.getItemsData()[0].length; k++)
+                board[i][k] = boardMap.getItemsData()[i][k];
 
         System.out.println("before");
         for(int x = 0; x < board.length; x++) {
@@ -305,13 +330,18 @@ public class State{
             {
                 if (keyX == x && keyY == y)
                 {
-                    if(isBox == 1)
+                    if(boxX != 0 || boxY!= 0)
                     {
                         System.out.println("isBox");
-                        board[y][x] = '$';
+
+                        board[y+boxY][x+boxX] = '$';
+
                         board[oldY][oldX] = '@';
-                        board[player.getY()][player.getX()] = ' ';
-                        this.player = player;
+
+                        board[addPos.getY()][addPos.getX()] = ' ';
+                        System.out.println(addPos.getY()+" "+addPos.getX());
+                        this.player = addPos;
+                        this.boxes.set(boxIndex, newPos);
                         this.boxes.set(boxIndex, newPos);
                         boardMap.setItemsData(board);
 
@@ -320,20 +350,24 @@ public class State{
                                 System.out.print(board[z][j]);
                             System.out.println();
                         }
+                        System.out.println("end.");
                     }
                     else
                     {
-                        board[y][x] = '@';
+
+                        board[keyY][keyX] = '@';
+
                         board[oldY][oldX] = ' ';
                         this.player = newPos;
+                        boardMap.setItemsData(board);
 
                         for(int z = 0; z < board.length; z++) {
                             for (int j = 0; j < board[z].length; j++)
                                 System.out.print(board[z][j]);
                             System.out.println();
                         }
+                        System.out.println("end.");
 
-                        boardMap.setItemsData(board);
                     }
 
                 }
@@ -435,6 +469,18 @@ public class State{
 
     public char[][] getStateData() {
         return stateData;
+    }
+
+    public char[][] getItemsData() {
+        return itemsData;
+    }
+
+    public char[][] getMapData() {
+        return mapData;
+    }
+
+    public PuzzleMap getMap() {
+        return map;
     }
 
     /**
