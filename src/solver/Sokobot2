@@ -1,0 +1,98 @@
+package solver;
+
+public class SokoBot {
+
+    private int width;
+    private int height;
+    private char[][] mapData;
+    private char[][] itemsData;
+
+    public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
+      this.width = width;
+      this.height = height;
+      this.mapData = mapData;
+      this.itemsData = itemsData;
+
+      return solveSokobanAStar();
+
+    }
+
+    public String solveSokobanAStar() {
+      // Initialize data structures and use width, height, mapData, and itemsData as needed.
+      // ...
+
+      PriorityQueue<State> openSet = new PriorityQueue<>(Comparator.comparingInt(State::getFValue));
+      Map<State, Integer> costToReach = new HashMap<>();
+      Map<State, Integer> estimatedFValue = new HashMap<>();
+      Map<State, List<String>> actions = new HashMap<>();
+      Set<State> goalStates = generateGoalStates();  // Define how to generate goal states.
+
+      // Add the initial state to the open set
+      State initialState = initializeState();  // Define how to initialize the initial state.
+      openSet.add(initialState);
+      costToReach.put(initialState, 0);
+      estimatedFValue.put(initialState, heuristic(initialState, goalStates));
+      actions.put(initialState, new ArrayList<>());
+
+      while (!openSet.isEmpty()) {
+        State currentState = openSet.poll();
+
+        if (goalStates.contains(currentState)) {
+          return String.join("", actions.get(currentState));
+        }
+
+        int currentCost = cost(actions.get(currentState));
+
+        List<State> successors = generateSuccessors(currentState);
+
+        for (State successor : successors) {
+          int tentativeCost = currentCost + 1;
+          int fValue = tentativeCost + heuristic(successor, goalStates);
+
+          if (!costToReach.containsKey(successor) || tentativeCost < costToReach.get(successor)) {
+            costToReach.put(successor, tentativeCost);
+            estimatedFValue.put(successor, fValue);
+
+            List<String> successorActions = new ArrayList<>(actions.get(currentState));
+            successorActions.add(successor.getLastAction());
+            actions.put(successor, successorActions);
+
+            openSet.add(successor);
+          }
+        }
+      }
+
+      return "lrrlrlrlrllrrlrlrlrlrlrlrr";
+    }
+
+    private Set<State> generateGoalStates() {
+      // Implement how to generate goal states based on the itemsData.
+      // ...
+      return new HashSet<>();  // Replace with your implementation.
+    }
+
+    private State initializeState() {
+      // Implement how to initialize the initial state based on the mapData and itemsData.
+      // ...
+      return new State();  // Replace with your implementation.
+    }
+
+    private List<State> generateSuccessors(State currentState) {
+      // Implement how to generate valid successor states based on the current state.
+      // ...
+      return new ArrayList<>();  // Replace with your implementation.
+    }
+
+    private int heuristic(State state, Set<State> goalStates) {
+      // Implement your admissible and consistent heuristic function here.
+      // ...
+      return 0;  // Replace with your implementation.
+    }
+
+    private int cost(List<String> actions) {
+      // A cost function to calculate the cost based on the number of lowercase letters in the actions.
+      return (int) actions.stream().filter(action -> Character.isLowerCase(action.charAt(0))).count();
+    }
+
+
+}
