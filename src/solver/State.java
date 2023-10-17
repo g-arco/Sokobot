@@ -12,6 +12,7 @@ public class State{
      * This will give slightly more expensive isBox/isGoal lookup but the actual runtime of those methods are small anyway
      */
     public String actions;
+    public State parent = null;
     private int heuristic = 1000;
 
     private char[][] itemsData;
@@ -20,12 +21,15 @@ public class State{
     private int fValue = 1000;
 
 
-    public State(char[][] mapData, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
+    public State( State parent, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
     {
         this.actions = newAction;
-        this.itemsData = cloneItems(stateData);
-        this.mapData = mapData;
 
+        this.itemsData = cloneItems(stateData);
+
+        this.mapData = parent.mapData;
+
+        this.parent = parent;
         //cacheHeuristic();
         //this.fValue = heuristic;
 
@@ -66,7 +70,7 @@ public class State{
     }
 
 
-    public char[][] setNewPosition(int isBox, Position newPos, Position oldPos, Position addPos, int boxX, int boxY){
+    public char[][] setNewPosition(char[][] board, int isBox, Position newPos, Position oldPos, Position addPos, int boxX, int boxY){
 
         int keyX = newPos.getX();
         int keyY = newPos.getY();
@@ -85,18 +89,18 @@ public class State{
         if(isBox == 1)
         {
             //System.out.println("isBox");
-            if(this.mapData[keyY+boxY][keyX+boxX+1] == '#' &&
+            if((this.mapData[keyY+boxY][keyX+boxX+1] == '#' || this.mapData[keyY+boxY][keyX+boxX+1] == '$') &&
                     (this.mapData[keyY+boxY+1][keyX+boxX] == '#'|| this.mapData[keyY+boxY-1][keyX+boxX] == '#')  &&
                     this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
-            if(this.mapData[keyY+boxY][keyX+boxX-1] == '#' &&
+            if((this.mapData[keyY+boxY][keyX+boxX-1] == '#' || this.mapData[keyY+boxY][keyX+boxX+1] == '$')&&
                     (this.mapData[keyY+boxY+1][keyX+boxX] == '#' ||  this.mapData[keyY+boxY-1][keyX+boxX] == '#') &&
                     this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
 
-            this.itemsData[keyY+boxY][keyX+boxX] = '$';
-            this.itemsData[keyY][keyX] = '@';
-            this.itemsData[addPos.getY()][addPos.getX()] = ' ';
+            board[keyY+boxY][keyX+boxX] = '$';
+            board[keyY][keyX] = '@';
+            board[addPos.getY()][addPos.getX()] = ' ';
             //System.out.println(addPos.getY()+" "+addPos.getX());
             //this.player = newPos;
 
@@ -111,8 +115,8 @@ public class State{
         else
         {
 
-            this.itemsData[keyY][keyX] = '@';
-            this.itemsData[oldY][oldX] = ' ';
+            board[keyY][keyX] = '@';
+            board[oldY][oldX] = ' ';
             //this.player = newPos;
 
             /*
@@ -125,25 +129,18 @@ public class State{
         }
 
 
-        return this.itemsData;
+        return board;
 
     }
 
 
-
     public boolean isGoalState(){
-        int count=0;
-
         for(int i = 0; i < this.mapData.length; i++)
-        {
             for (int j = 0; j < this.mapData[i].length; j++)
-            {
-                if(this.itemsData[i][j] == '$' && this.mapData[i][j] != '.')
+                if(this.mapData[i][j] == '.' && this.itemsData[i][j] != '$')
                     return false;
-            }
-        }
-        return true;
 
+        return true;
     }
 
 
@@ -169,11 +166,11 @@ public class State{
         }
         return false;
     }*/
-    public char[][] cloneItems(char[][]stateData){
-
-        char[][] clone = new char[stateData.length][stateData[0].length];
-        for(int i = 0; i < stateData.length; i++){
-            System.arraycopy(stateData[i],0,clone[i],0,stateData[0].length);
+    public char[][] cloneItems(char[][]arrSRC){
+        // get the row length and get the column length
+        char[][] clone = new char[arrSRC.length][arrSRC[0].length];
+        for(int i = 0; i < arrSRC.length; i++){
+            System.arraycopy(arrSRC[i],0,clone[i],0,arrSRC[0].length);
         }
         return clone;
     }
@@ -187,14 +184,17 @@ public class State{
             {
                 if (stateData[x][y] == '$' && this.mapData[x][y] != '.')
                 {
-                    /*
-                    if(this.mapData[x+1][y] == '$' && this.mapData[x+2][y] == '#' && (this.mapData[x][y+1] == '#' ||  this.mapData[x][y-1] == '#'))
+                    if(this.mapData[x+1][y] == '$' && this.mapData[x+2][y] == '#')
                         return true;
-                    if(this.mapData[x-1][y] == '$' && this.mapData[x-2][y] == '#' && (this.mapData[x][y+1] == '#' ||  this.mapData[x][y-1] == '#'))
-                        return true;*/
-                    if(this.mapData[x][y+1] == '#' && (this.mapData[x+1][y] == '#'|| this.mapData[x-1][y] == '#'))
+                    if(this.mapData[x-1][y] == '$' && this.mapData[x-2][y] == '#')
                         return true;
-                    if(this.mapData[x][y-1] == '#' && (this.mapData[x+1][y] == '#' ||  this.mapData[x-1][y] == '#'))
+                    if(this.mapData[x][y+1] == '$' && this.mapData[x][y+2] == '#')
+                        return true;
+                    if(this.mapData[x][y-1] == '$' && this.mapData[x][y-2] == '#')
+                        return true;
+                    if((this.mapData[x][y+1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y+1] == '#' && this.mapData[x-1][y] == '#'))
+                        return true;
+                    if((this.mapData[x][y-1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y-1] == '#' && this.mapData[x-1][y] == '#'))
                         return true;
                 }
             }
@@ -203,6 +203,10 @@ public class State{
         return false;
     }
 
+    public boolean isWall(int x, int y)
+    {
+        return (this.mapData[y][x] == '#');
+    }
 
     public int getfValue() {
         return fValue;
@@ -225,9 +229,56 @@ public class State{
         return itemsData;
     }
 
+    public char[][] getMapData() {
+        return mapData;
+    }
+
     public String getActions() {
         return actions;
     }
+
+    /**
+     *
+     * @return A string to be used when debugging the AI
+
+    public String toString()
+    {
+    String stringOut = "";
+    boolean boxBool, playerBool;
+    for (int i = 0; i < map.getHeight(); i++) { // For y-coordinates
+    for (int j = 0; j < map.getWidth(); j++) { // For x-coordinates
+    // See if there is a box with these exact coordinates
+    boxBool = false;
+    playerBool = false;
+    for (Position box : boxes) {
+    if (box.x == j & box.y == i) {
+    boxBool = true;
+    }
+    }
+    // See if there is a player with these exact coordinates
+    if (player.x == j & player.y == i) {
+    playerBool = true;
+    }
+    // Add to the string
+    if (boxBool & map.mapMatrix[i][j] == '.') {
+    stringOut += '*';
+    } else if (playerBool & map.mapMatrix[i][j] == '.') {
+    stringOut += '+';
+    } else if (playerBool){
+    stringOut += '@';
+    } else if (boxBool) {
+    stringOut += '$';
+    } else {
+    stringOut += map.mapMatrix[i][j];
+    }
+    }
+    if (i < map.getHeight()-1) { // No new line on last line
+    stringOut += System.getProperty("line.separator"); // New line
+    }
+    }
+    return stringOut;
+    }
+     */
 
     @Override
     public boolean equals(Object obj) {
