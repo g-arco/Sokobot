@@ -31,15 +31,9 @@ public class State{
         this.goals = parent.goals;
         this.actions = newAction;
 
-        this.itemsData = new char[stateData.length][stateData[0].length];
-        for (int i = 0; i < stateData.length; i++)
-            for (int j = 0; j < stateData[i].length; j++)
-                this.itemsData[i][j] = stateData[i][j];
+        this.itemsData = deepcloneItems(stateData);
 
-        this.mapData = new char[parent.getMapData().length][parent.getMapData()[0].length];
-        for (int i = 0; i < parent.getMapData().length; i++)
-            for (int j = 0; j < parent.getMapData()[i].length; j++)
-                this.mapData[i][j] = parent.getMapData()[i][j];
+        this.mapData = parent.mapData;
 
         this.parent = parent;
         //cacheHeuristic();
@@ -56,15 +50,9 @@ public class State{
     public State(char[][] itemsData, char[][] mapData, String actions) throws Exception
     {
         //Read in the initial position of the boxes and the player.
-        this.itemsData = new char[itemsData.length][itemsData[0].length];
-        for (int i = 0; i < itemsData.length; i++)
-            for (int j = 0; j < itemsData[i].length; j++)
-                this.itemsData[i][j] = itemsData[i][j];
+        this.itemsData = deepcloneItems(itemsData);
 
-        this.mapData = new char[mapData.length][mapData[0].length];
-        for (int i = 0; i < mapData.length; i++)
-            for (int j = 0; j < mapData[i].length; j++)
-                this.mapData[i][j] = mapData[i][j];
+        this.mapData = mapData;
 
         this.actions = actions;
         this.player = findPlayer(this.itemsData);
@@ -194,12 +182,7 @@ public class State{
 
 
 
-    /**
-     *
-     * @param x
-     * @param y
-     * @return Whether the tile is free to move onto or not
-     */
+
     /*
     public boolean isFree(int x, int y)
     {
@@ -220,6 +203,42 @@ public class State{
         }
         return false;
     }*/
+    public char[][] deepcloneItems(char[][]arrSRC){
+        // get the row length and get the column length
+        char[][] clone = new char[arrSRC.length][arrSRC[0].length];
+        for(int i = 0; i < arrSRC.length; i++){
+            System.arraycopy(arrSRC[i],0,clone[i],0,arrSRC[0].length);
+        }
+        return clone;
+    }
+
+    public boolean isDeadEnd(char[][] stateData){
+        // get the row length and get the column length
+        int deadEnd = 0;
+
+        for(int x = 0; x < stateData.length; x++) {
+            for (int y = 0; y < stateData[x].length; y++)
+            {
+                if (stateData[x][y] == '$' && this.mapData[x][y] != '.')
+                {
+                    if(this.mapData[x+1][y] == '$' && this.mapData[x+2][y] == '#')
+                        return true;
+                    if(this.mapData[x-1][y] == '$' && this.mapData[x-2][y] == '#')
+                        return true;
+                    if(this.mapData[x][y+1] == '$' && this.mapData[x][y+2] == '#')
+                        return true;
+                    if(this.mapData[x][y-1] == '$' && this.mapData[x][y-2] == '#')
+                        return true;
+                    if((this.mapData[x][y+1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y+1] == '#' && this.mapData[x-1][y] == '#'))
+                        return true;
+                    if((this.mapData[x][y-1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y-1] == '#' && this.mapData[x-1][y] == '#'))
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     public boolean isWall(int x, int y)
     {
@@ -301,27 +320,15 @@ public class State{
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof State other) {
-            return this.player == other.player &&
-                    java.util.Arrays.deepEquals(this.itemsData, other.itemsData);
+            return java.util.Arrays.deepEquals(this.itemsData, other.itemsData);
         }
         return false;
     }
 
-    /*
-    private void cacheHeuristic(){
+    @Override
+    public int hashCode() {
+        return java.util.Arrays.deepHashCode(itemsData);
+    }
 
-        for (Position boxPos : boxes) {
-            int minDistance = Integer.MAX_VALUE;
-
-            // Calculate the Manhattan distance from the box to the closest goal
-            for (Position goalPos : goals) {
-                int distance = Math.abs(boxPos.x - goalPos.x) + Math.abs(boxPos.y - goalPos.y);
-                minDistance = Math.min(minDistance, distance);
-            }
-
-            heuristic += minDistance;
-        }
-
-    }*/
 
 }

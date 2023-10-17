@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de8f694a-05be-469c-86e7-8f0b18892a72" name="Changes" comment="fixing the search algo">
+    <list default="true" id="de8f694a-05be-469c-86e7-8f0b18892a72" name="Changes" comment="works with one box">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/solver/State.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/State.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -69,7 +69,14 @@
       <option name="project" value="LOCAL" />
       <updated>1697517269275</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="works with one box">
+      <created>1697532883617</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1697532883618</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -77,6 +84,7 @@
     <MESSAGE value="generate successors fixed" />
     <MESSAGE value="generate successors fixed (2)" />
     <MESSAGE value="fixing the search algo" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing the search algo" />
+    <MESSAGE value="works with one box" />
+    <option name="LAST_COMMIT_MESSAGE" value="works with one box" />
   </component>
 </project>

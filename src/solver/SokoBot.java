@@ -1,4 +1,5 @@
 package solver;
+import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -45,7 +46,7 @@ public class SokoBot {
         PriorityQueue<State> openSet = new PriorityQueue<>(Comparator.comparingInt(State::getHeuristic));
 
       Map<State, List<String>> actions = new HashMap<State, List<String>> ();
-      Set<State> visitedStates = new HashSet<>();
+      ArrayList<State> visitedStates = new ArrayList<>();
       String vistedActions = "";
 
       // Add the initial state to the open set
@@ -54,14 +55,14 @@ public class SokoBot {
 
         System.out.println("InState Map");
         for(int x = 0; x < initialState.getItemsData().length; x++) {
-            for (int y = 0; y < initialState.getItemsData().length; y++)
+            for (int y = 0; y < initialState.getItemsData()[x].length; y++)
                 System.out.print(initialState.getItemsData()[x][y]);
             System.out.println();
         }
 
         initialState.setHeuristic(getCost(initialState));
         openSet.add(initialState);
-        actions.put(initialState, new ArrayList<>());
+        int logPrevData = 0;
 
 
         System.out.println("+++++++");
@@ -73,7 +74,6 @@ public class SokoBot {
             continue;
 
         visitedStates.add(currentState);
-        //vistedActions.concat(currentState.actions);
 
         System.out.println("+++++++");
           if(currentState.actions != null)
@@ -94,24 +94,34 @@ public class SokoBot {
           System.out.println();
         }
 
-        List<State> successors = generateSuccessors(currentState);
 
-        for (State successor : successors)
+        for (int move =0; move < 4; move++)
         {
-            System.out.println(!visitedStates.contains(successor));
+            State successor;
+            if (logPrevData < 2)
+                successor = generateSuccessors(currentState, move, this.itemsData, 0);
+            else
+                successor = generateSuccessors(currentState, move, visitedStates.get(visitedStates.size()-2).getItemsData(), 1);
 
-            if (!visitedStates.contains(successor)) {
-                successor.setHeuristic(getCost(successor));
-                openSet.add(successor);
+             if (successor != null)
+             {
+                 System.out.println(!visitedStates.contains(successor));
 
-                for(int x = 0; x < successor.getItemsData().length; x++) {
-                    for (int y = 0; y < successor.getItemsData()[x].length; y++)
-                        System.out.print(successor.getItemsData()[x][y]);
-                    System.out.println();
-                }
+                 if (!visitedStates.contains(successor)) {
+                     successor.setHeuristic(getCost(successor));
+                     openSet.add(successor);
 
+                     /*
+                     for(int x = 0; x < successor.getItemsData().length; x++) {
+                         for (int y = 0; y < successor.getItemsData()[x].length; y++)
+                             System.out.print(successor.getItemsData()[x][y]);
+                         System.out.println();
+                     }*/
+             }
           }
         }
+
+        logPrevData++;
       }
 
       return "lrrlrlrlrllrrlrlrlrlrlrlrr";
@@ -135,20 +145,18 @@ public class SokoBot {
         return new State(this.itemsData, this.mapData, "");
     }
 
-    private ArrayList<State> generateSuccessors(State state) throws Exception {
-        ArrayList<State> newStates = new ArrayList<>();
+    private State generateSuccessors(State state, int i, char[][] prevData, int logPrevAvail) throws Exception {
         Position positions = new Position();
-        State origState = new State(state.getItemsData(), this.mapData, state.actions);
         State currState = new State(state.getItemsData(), this.mapData, state.actions);
         char[][] newItemData;
 
-
+        /*
         System.out.println("===Reference Map====");
         for(int x = 0; x < currState.getItemsData().length; x++) {
             for (int y = 0; y < currState.getItemsData()[x].length; y++)
                 System.out.print(currState.getItemsData()[x][y]);
             System.out.println();
-        }
+        }*/
 
         Position playerPosition = currState.findPlayer(currState.getItemsData());
         int playerX = playerPosition.getX();
@@ -160,35 +168,27 @@ public class SokoBot {
         int[] moveY = {-1, 1, 0, 0};
         String[] moveActions = {"u", "d", "l", "r"};
 
+        int newX = playerX + moveX[i];
+        int newY = playerY + moveY[i];
+        positions = new Position(newX,newY);
 
-
-        for (int i = 0; i < moveX.length; i++) {
-            int newX = playerX + moveX[i];
-            int newY = playerY + moveY[i];
-            positions = new Position(newX,newY);
-
-            currState.setItemsData(origState.getItemsData());
-
-
-            if (this.mapData[newY][newX]!= '#' && currState.getItemsData()[newY][newX] != '$') {
-                System.out.println(newX+"Not a box"+ newY);
-                newItemData = currState.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
-                newStates.add(new State(currState, currState.getActions() + moveActions[i], newItemData));
-            }
-            else if (currState.getItemsData()[newY][newX] == '$'&& this.mapData[newY+moveY[i]][newX+moveX[i]] != '#' && currState.getItemsData()[newY+ moveY[i]][newX+ moveX[i]] != '$')
-            {
-                Position box = new Position(newX+ moveX[i], newY+ moveY[i]);
-                newItemData = currState.setNewPosition(1, positions, box, playerPosition, moveX[i], moveY[i]);
-                newStates.add(new State(currState, currState.getActions() + moveActions[i], newItemData));
-                currState.setItemsData(origState.getItemsData());
-            }
-
+        if (this.mapData[newY][newX]!= '#' && currState.getItemsData()[newY][newX] != '$') {
+            System.out.println(newX+"Not a box"+ newY);
+            newItemData = currState.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
+            if((!newItemData.equals(prevData) || logPrevAvail == 0) && !currState.isDeadEnd(newItemData))
+                return new State(currState, currState.getActions() + moveActions[i], newItemData);
+        }
+        else if (currState.getItemsData()[newY][newX] == '$'&& this.mapData[newY+moveY[i]][newX+moveX[i]] != '#' && currState.getItemsData()[newY+ moveY[i]][newX+ moveX[i]] != '$')
+        {
+            Position box = new Position(newX+ moveX[i], newY+ moveY[i]);
+            newItemData = currState.setNewPosition(1, positions, box, playerPosition, moveX[i], moveY[i]);
+            if((!newItemData.equals(prevData) || logPrevAvail == 0) && !currState.isDeadEnd(newItemData))
+                return new State(currState, currState.getActions() + moveActions[i], newItemData);
         }
 
         System.out.println("+++++++");
 
-
-        return newStates;
+        return null;
     }
 
     private int cost(List<String> actions) {
