@@ -85,9 +85,13 @@ public class State{
         if(isBox == 1)
         {
             //System.out.println("isBox");
-            if(this.mapData[keyY+boxY][keyX+boxX+1] == '#' && (this.mapData[keyY+boxY+1][keyX+boxX] == '#'|| this.mapData[keyY+boxY-1][keyX+boxX] == '#')  && this.mapData[keyY+boxY][keyX+boxX] != '.')
+            if(this.mapData[keyY+boxY][keyX+boxX+1] == '#' &&
+                    (this.mapData[keyY+boxY+1][keyX+boxX] == '#'|| this.mapData[keyY+boxY-1][keyX+boxX] == '#')  &&
+                    this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
-            if(this.mapData[keyY+boxY][keyX+boxX-1] == '#' && (this.mapData[keyY+boxY+1][keyX+boxX] == '#' ||  this.mapData[keyY+boxY-1][keyX+boxX] == '#') && this.mapData[keyY+boxY][keyX+boxX] != '.')
+            if(this.mapData[keyY+boxY][keyX+boxX-1] == '#' &&
+                    (this.mapData[keyY+boxY+1][keyX+boxX] == '#' ||  this.mapData[keyY+boxY-1][keyX+boxX] == '#') &&
+                    this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
 
             this.itemsData[keyY+boxY][keyX+boxX] = '$';

@@ -12,8 +12,6 @@ public class SokoBot {
     private int height;
     private char[][] mapData;
     private char[][] itemsData;
-    private int tentativeCost;
-    private Position lastPlayerPos;
 
     private ArrayList<Position> goals;
 
@@ -22,8 +20,6 @@ public class SokoBot {
       this.height = height;
       this.mapData = mapData;
       this.itemsData = itemsData;
-      this.goals = new ArrayList<>();
-      findGoals(this.mapData);
 
 
         try {
@@ -194,46 +190,17 @@ public class SokoBot {
     }
 
 
-    private void findGoals(char[][] board)
-    {
-
-        for (int y = 0; y < board.length; y++)
-        {
-            for (int x = 0; x < board[y].length; x++)
-            {
-                char c = board[y][x];
-                if (c == '.')
-                {
-                    this.goals.add(new Position(x, y));
-                }
-            }
-        }
-    }
 
     private int getCost(State currState){
 
         int cost= 0;
-        ArrayList<Position> boxes = new ArrayList<>();
 
-        for(int i = 0; i< currState.getItemsData().length;i++){
-            for(int j = 0; j< currState.getItemsData()[i].length;j++){
-                if (currState.getItemsData()[i][j] == '$'){
-                    boxes.add(new Position(i,j));
+        for(int i = 0; i< currState.getItemsData().length;i++) {
+            for (int j = 0; j < currState.getItemsData()[i].length; j++) {
+                if (currState.getItemsData()[i][j] == '$' && this.mapData[i][j] != '.') {
+                    cost++;
                 }
             }
-        }
-
-        for (Position boxPos : boxes) {
-            int minDistance = Integer.MAX_VALUE;
-
-            // Calculate the Manhattan distance from the box to the closest goal
-            for (Position goalPos : this.goals) {
-                int distance = Math.abs(boxPos.x - goalPos.x) + Math.abs(boxPos.y - goalPos.y);
-                if (distance < minDistance)
-                    minDistance = distance;
-            }
-
-            cost += minDistance;
         }
 
         //System.out.println(cost);
