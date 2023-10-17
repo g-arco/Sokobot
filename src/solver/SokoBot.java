@@ -203,7 +203,8 @@ public class SokoBot {
             }
         }
 
-        //System.out.println(cost);
+        System.out.println(cost);
+
         return cost;
 
     }
