@@ -16,18 +16,17 @@ public class State{
     public Position player;
     public String actions;
     public State parent = null;
-    private int heuristic;
-    public char[][] stateData = null;
+    private int heuristic = 1000;
 
     private char[][] itemsData;
 
     private char[][] mapData;
-    private int fValue;
+    private int fValue = 1000;
 
 
-    public State( State parent, String newAction, char[][] stateData)//More parameters for player and boxes
+    public State( State parent, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
     {
-        //this.player = parent.player;
+        this.player = findPlayer(stateData);
         this.boxes = parent.boxes;
         this.goals = parent.goals;
         this.actions = newAction;
@@ -42,7 +41,6 @@ public class State{
             for (int j = 0; j < parent.getMapData()[i].length; j++)
                 this.mapData[i][j] = parent.getMapData()[i][j];
 
-        this.stateData = stateData;
         this.parent = parent;
         //cacheHeuristic();
         //this.fValue = heuristic;
@@ -55,7 +53,7 @@ public class State{
         }*/
     }
 
-    public State(char[][] itemsData, char[][] mapData) throws Exception
+    public State(char[][] itemsData, char[][] mapData, String actions) throws Exception
     {
         //Read in the initial position of the boxes and the player.
         this.itemsData = new char[itemsData.length][itemsData[0].length];
@@ -68,36 +66,16 @@ public class State{
             for (int j = 0; j < mapData[i].length; j++)
                 this.mapData[i][j] = mapData[i][j];
 
-        //this.player = findPlayer(this.itemsData);
+        this.actions = actions;
+        this.player = findPlayer(this.itemsData);
         this.goals = findGoals(this.mapData);
-        this.stateData = this.itemsData;
         //cacheHeuristic();
         //this.fValue = heuristic;
     }
 
-    public State(State state) throws Exception
-    {
-        //Read in the initial position of the boxes and the player.
-        this.itemsData = new char[state.getItemsData().length][state.getItemsData()[0].length];
 
-        for (int i = 0; i < state.getItemsData().length; i++)
-            for (int j = 0; j < state.getItemsData()[i].length; j++)
-                this.itemsData[i][j] = state.getItemsData()[i][j];
 
-        this.mapData = new char[state.getMapData().length][state.getMapData()[0].length];
-        for (int i = 0; i < state.getMapData().length; i++)
-            for (int j = 0; j < state.getMapData()[i].length; j++)
-                this.mapData[i][j] = state.getMapData()[i][j];
-
-        //this.player = findPlayer(this.itemsData);
-        this.goals = findGoals(this.mapData);
-        this.stateData = this.itemsData;
-        //cacheHeuristic();
-        //this.fValue = heuristic;
-    }
-
-    /*
-    private Position findPlayer(char[][] board) throws Exception
+    public Position findPlayer(char[][] board) throws Exception
     {
         for (int y = 0; y < board.length; y++)
         {
@@ -109,9 +87,9 @@ public class State{
             }
         }
         throw new Exception("Could not find the player in the board");
-    }*/
+    }
 
-    private ArrayList<Position> findGoals(char[][] board)
+    public ArrayList<Position> findGoals(char[][] board)
     {
 
         ArrayList<Position> goals = new ArrayList<Position>();
@@ -129,7 +107,7 @@ public class State{
         return goals;
     }
 
-    public char[][] setNewPosition(int boxIndex, Position newPos, Position oldPos, Position addPos, int boxX, int boxY){
+    public char[][] setNewPosition(int isBox, Position newPos, Position oldPos, Position addPos, int boxX, int boxY){
 
         int keyX = newPos.getX();
         int keyY = newPos.getY();
@@ -150,15 +128,15 @@ public class State{
             {
                 if (keyX == x && keyY == y)
                 {
-                    if(boxX != 0 || boxY!= 0)
+                    if(isBox == 1)
                     {
                         System.out.println("isBox");
 
                         this.itemsData[y+boxY][x+boxX] = '$';
-                        this.itemsData[oldY][oldX] = '@';
+                        this.itemsData[keyY][keyX] = '@';
                         this.itemsData[addPos.getY()][addPos.getX()] = ' ';
                         System.out.println(addPos.getY()+" "+addPos.getX());
-                        //this.player = addPos;
+                        //this.player = newPos;
 
                         /*
                         for(int z = 0; z < this.itemsData.length; z++) {
@@ -172,7 +150,6 @@ public class State{
                     {
 
                         this.itemsData[keyY][keyX] = '@';
-
                         this.itemsData[oldY][oldX] = ' ';
                         //this.player = newPos;
 
@@ -249,10 +226,12 @@ public class State{
         return (this.mapData[y][x] == '#');
     }
 
-
-    public int setFValue(int tentativeCost) {
-        this.fValue = tentativeCost + heuristic;
+    public int getfValue() {
         return fValue;
+    }
+
+    public void setFValue(int fValue) {
+        this.fValue = fValue;
     }
 
     public void setHeuristic(int heuristic) {
@@ -263,10 +242,6 @@ public class State{
         return heuristic;
     }
 
-
-    public char[][] getStateData() {
-        return stateData;
-    }
 
     public char[][] getItemsData() {
         return itemsData;
@@ -323,6 +298,14 @@ public class State{
     }
     */
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof State other) {
+            return this.player == other.player &&
+                    java.util.Arrays.deepEquals(this.itemsData, other.itemsData);
+        }
+        return false;
+    }
 
     /*
     private void cacheHeuristic(){
