@@ -11,9 +11,6 @@ public class State{
      * Store boxes and goals in simple list to save memory and allow iteration
      * This will give slightly more expensive isBox/isGoal lookup but the actual runtime of those methods are small anyway
      */
-    public ArrayList<Position> boxes;
-    public ArrayList<Position> goals;
-    public Position player;
     public String actions;
     public State parent = null;
     private int heuristic = 1000;
@@ -26,9 +23,6 @@ public class State{
 
     public State( State parent, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
     {
-        this.player = findPlayer(stateData);
-        this.boxes = parent.boxes;
-        this.goals = parent.goals;
         this.actions = newAction;
 
         this.itemsData = deepcloneItems(stateData);
@@ -55,8 +49,6 @@ public class State{
         this.mapData = mapData;
 
         this.actions = actions;
-        this.player = findPlayer(this.itemsData);
-        this.goals = findGoals(this.mapData);
         //cacheHeuristic();
         //this.fValue = heuristic;
     }
@@ -77,23 +69,6 @@ public class State{
         throw new Exception("Could not find the player in the board");
     }
 
-    public ArrayList<Position> findGoals(char[][] board)
-    {
-
-        ArrayList<Position> goals = new ArrayList<Position>();
-        for (int y = 0; y < board.length; y++)
-        {
-            for (int x = 0; x < board[y].length; x++)
-            {
-                char c = board[y][x];
-                if (c == '.' || c == '*')
-                {
-                    goals.add(new Position(x, y));
-                }
-            }
-        }
-        return goals;
-    }
 
     public char[][] setNewPosition(int isBox, Position newPos, Position oldPos, Position addPos, int boxX, int boxY){
 
@@ -114,6 +89,10 @@ public class State{
         if(isBox == 1)
         {
             //System.out.println("isBox");
+            if(this.mapData[keyY+boxY][keyX+boxX+1] == '#' && (this.mapData[keyY+boxY+1][keyX+boxX] == '#'|| this.mapData[keyY+boxY-1][keyX+boxX] == '#')  && this.mapData[keyY+boxY][keyX+boxX] != '.')
+                return null;
+            if(this.mapData[keyY+boxY][keyX+boxX-1] == '#' && (this.mapData[keyY+boxY+1][keyX+boxX] == '#' ||  this.mapData[keyY+boxY-1][keyX+boxX] == '#') && this.mapData[keyY+boxY][keyX+boxX] != '.')
+                return null;
 
             this.itemsData[keyY+boxY][keyX+boxX] = '$';
             this.itemsData[keyY][keyX] = '@';
@@ -150,25 +129,20 @@ public class State{
 
     }
 
-    public void setItemsData(char[][] stateData) {
-        this.itemsData = new char[stateData.length][stateData[0].length];
-        for (int i = 0; i < stateData.length; i++)
-            for (int j = 0; j < stateData[i].length; j++)
-                this.itemsData[i][j] = stateData[i][j];
-    }
 
 
     public boolean isGoalState(){
         int count=0;
 
         for(int i = 0; i < this.mapData.length; i++)
+        {
             for (int j = 0; j < this.mapData[i].length; j++)
-                if(this.mapData[i][j] == '.' && this.itemsData[i][j] == '$')
-                    count++;
-        if (count == goals.size())
-            return true;
-        else
-            return false;
+            {
+                if(this.itemsData[i][j] == '$' && this.mapData[i][j] != '.')
+                    return false;
+            }
+        }
+        return true;
 
     }
 
@@ -195,11 +169,11 @@ public class State{
         }
         return false;
     }*/
-    public char[][] deepcloneItems(char[][]arrSRC){
+    public char[][] deepcloneItems(char[][]stateData){
         // get the row length and get the column length
-        char[][] clone = new char[arrSRC.length][arrSRC[0].length];
-        for(int i = 0; i < arrSRC.length; i++){
-            System.arraycopy(arrSRC[i],0,clone[i],0,arrSRC[0].length);
+        char[][] clone = new char[stateData.length][stateData[0].length];
+        for(int i = 0; i < stateData.length; i++){
+            System.arraycopy(stateData[i],0,clone[i],0,stateData[0].length);
         }
         return clone;
     }
@@ -229,10 +203,6 @@ public class State{
         return false;
     }
 
-    public boolean isWall(int x, int y)
-    {
-        return (this.mapData[y][x] == '#');
-    }
 
     public int getfValue() {
         return fValue;
@@ -255,56 +225,9 @@ public class State{
         return itemsData;
     }
 
-    public char[][] getMapData() {
-        return mapData;
-    }
-
     public String getActions() {
         return actions;
     }
-
-    /**
-     *
-     * @return A string to be used when debugging the AI
-
-    public String toString()
-    {
-        String stringOut = "";
-        boolean boxBool, playerBool;
-        for (int i = 0; i < map.getHeight(); i++) { // For y-coordinates
-            for (int j = 0; j < map.getWidth(); j++) { // For x-coordinates
-                // See if there is a box with these exact coordinates
-                boxBool = false;
-                playerBool = false;
-                for (Position box : boxes) {
-                    if (box.x == j & box.y == i) {
-                        boxBool = true;
-                    }
-                }
-                // See if there is a player with these exact coordinates
-                if (player.x == j & player.y == i) {
-                    playerBool = true;
-                }
-                // Add to the string
-                if (boxBool & map.mapMatrix[i][j] == '.') {
-                    stringOut += '*';
-                } else if (playerBool & map.mapMatrix[i][j] == '.') {
-                    stringOut += '+';
-                } else if (playerBool){
-                    stringOut += '@';
-                } else if (boxBool) {
-                    stringOut += '$';
-                } else {
-                    stringOut += map.mapMatrix[i][j];
-                }
-            }
-            if (i < map.getHeight()-1) { // No new line on last line
-                stringOut += System.getProperty("line.separator"); // New line
-            }
-        }
-        return stringOut;
-    }
-    */
 
     @Override
     public boolean equals(Object obj) {

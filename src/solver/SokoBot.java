@@ -150,8 +150,7 @@ public class SokoBot {
     }
 
     private State generateSuccessors(State state, int i, char[][] prevData, int logPrevAvail) throws Exception {
-        Position positions = new Position();
-        State currState = new State(state.getItemsData(), this.mapData, state.actions);
+
         char[][] newItemData;
 
         /*
@@ -162,7 +161,7 @@ public class SokoBot {
             System.out.println();
         }*/
 
-        Position playerPosition = currState.findPlayer(currState.getItemsData());
+        Position playerPosition = state.findPlayer(state.getItemsData());
         int playerX = playerPosition.getX();
         int playerY = playerPosition.getY();
 
@@ -174,20 +173,20 @@ public class SokoBot {
 
         int newX = playerX + moveX[i];
         int newY = playerY + moveY[i];
-        positions = new Position(newX,newY);
+        Position positions = new Position(newX,newY);
 
-        if (this.mapData[newY][newX]!= '#' && currState.getItemsData()[newY][newX] != '$') {
+        if (this.mapData[newY][newX]!= '#' && state.getItemsData()[newY][newX] != '$') {
             //System.out.println(newX+"Not a box"+ newY);
-            newItemData = currState.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
-            if((!newItemData.equals(prevData) || logPrevAvail == 0) && !currState.isDeadEnd(newItemData))
-                return new State(currState, currState.getActions() + moveActions[i], newItemData);
+            newItemData = state.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
+            if(newItemData != null && (!newItemData.equals(prevData) || logPrevAvail == 0))
+                return new State(state, state.getActions() + moveActions[i], newItemData);
         }
-        else if (currState.getItemsData()[newY][newX] == '$'&& this.mapData[newY+moveY[i]][newX+moveX[i]] != '#' && currState.getItemsData()[newY+ moveY[i]][newX+ moveX[i]] != '$')
+        else if (state.getItemsData()[newY][newX] == '$'&& this.mapData[newY+moveY[i]][newX+moveX[i]] != '#' && state.getItemsData()[newY+ moveY[i]][newX+ moveX[i]] != '$')
         {
             Position box = new Position(newX+ moveX[i], newY+ moveY[i]);
-            newItemData = currState.setNewPosition(1, positions, box, playerPosition, moveX[i], moveY[i]);
-            if((!newItemData.equals(prevData) || logPrevAvail == 0) && !currState.isDeadEnd(newItemData))
-                return new State(currState, currState.getActions() + moveActions[i], newItemData);
+            newItemData = state.setNewPosition(1, positions, box, playerPosition, moveX[i], moveY[i]);
+            if(newItemData != null && (!newItemData.equals(prevData) || logPrevAvail == 0))
+                return new State(state, state.getActions() + moveActions[i], newItemData);
         }
 
         //System.out.println("+++++++");
@@ -195,15 +194,10 @@ public class SokoBot {
         return null;
     }
 
-    private int cost(List<String> actions) {
-      // A cost function to calculate the cost based on the number of lowercase letters in the actions.
-      return (int) actions.stream().filter(action -> Character.isLowerCase(action.charAt(0))).count();
-    }
 
-    private ArrayList<Position> findGoals(char[][] board)
+    private void findGoals(char[][] board)
     {
 
-        ArrayList<Position> goals = new ArrayList<Position>();
         for (int y = 0; y < board.length; y++)
         {
             for (int x = 0; x < board[y].length; x++)
@@ -215,12 +209,11 @@ public class SokoBot {
                 }
             }
         }
-        return goals;
     }
 
     private int getCost(State currState){
 
-        int cost= currState.actions.length();
+        int cost= 0;
         ArrayList<Position> boxes = new ArrayList<>();
 
         for(int i = 0; i< currState.getItemsData().length;i++){
