@@ -110,49 +110,41 @@ public class State{
             System.out.println();
         }*/
 
-        for (int y = 0; y < this.itemsData.length; y++)
+
+        if(isBox == 1)
         {
-            for (int x = 0; x < this.itemsData[y].length; x++)
-            {
-                if (keyX == x && keyY == y)
-                {
-                    if(isBox == 1)
-                    {
-                        //System.out.println("isBox");
+            //System.out.println("isBox");
 
-                        this.itemsData[y+boxY][x+boxX] = '$';
-                        this.itemsData[keyY][keyX] = '@';
-                        this.itemsData[addPos.getY()][addPos.getX()] = ' ';
-                        //System.out.println(addPos.getY()+" "+addPos.getX());
-                        //this.player = newPos;
+            this.itemsData[keyY+boxY][keyX+boxX] = '$';
+            this.itemsData[keyY][keyX] = '@';
+            this.itemsData[addPos.getY()][addPos.getX()] = ' ';
+            //System.out.println(addPos.getY()+" "+addPos.getX());
+            //this.player = newPos;
 
-                        /*
-                        for(int z = 0; z < this.itemsData.length; z++) {
-                            for (int j = 0; j < this.itemsData[z].length; j++)
-                                System.out.print(this.itemsData[z][j]);
-                            System.out.println();
-                        }*/
-                        //System.out.println("end.");
-                    }
-                    else
-                    {
-
-                        this.itemsData[keyY][keyX] = '@';
-                        this.itemsData[oldY][oldX] = ' ';
-                        //this.player = newPos;
-
-                        /*
-                        for(int z = 0; z < this.itemsData.length; z++) {
-                            for (int j = 0; j < this.itemsData[z].length; j++)
-                                System.out.print(this.itemsData[z][j]);
-                            System.out.println();
-                        }*/
-
-                    }
-
-                }
-            }
+            /*
+            for(int z = 0; z < this.itemsData.length; z++) {
+                for (int j = 0; j < this.itemsData[z].length; j++)
+                    System.out.print(this.itemsData[z][j]);
+                System.out.println();
+            }*/
+            //System.out.println("end.");
         }
+        else
+        {
+
+            this.itemsData[keyY][keyX] = '@';
+            this.itemsData[oldY][oldX] = ' ';
+            //this.player = newPos;
+
+            /*
+            for(int z = 0; z < this.itemsData.length; z++) {
+                for (int j = 0; j < this.itemsData[z].length; j++)
+                    System.out.print(this.itemsData[z][j]);
+                System.out.println();
+            }*/
+
+        }
+
 
         return this.itemsData;
 
@@ -221,17 +213,14 @@ public class State{
             {
                 if (stateData[x][y] == '$' && this.mapData[x][y] != '.')
                 {
-                    if(this.mapData[x+1][y] == '$' && this.mapData[x+2][y] == '#')
+                    /*
+                    if(this.mapData[x+1][y] == '$' && this.mapData[x+2][y] == '#' && (this.mapData[x][y+1] == '#' ||  this.mapData[x][y-1] == '#'))
                         return true;
-                    if(this.mapData[x-1][y] == '$' && this.mapData[x-2][y] == '#')
+                    if(this.mapData[x-1][y] == '$' && this.mapData[x-2][y] == '#' && (this.mapData[x][y+1] == '#' ||  this.mapData[x][y-1] == '#'))
+                        return true;*/
+                    if(this.mapData[x][y+1] == '#' && (this.mapData[x+1][y] == '#'|| this.mapData[x-1][y] == '#'))
                         return true;
-                    if(this.mapData[x][y+1] == '$' && this.mapData[x][y+2] == '#')
-                        return true;
-                    if(this.mapData[x][y-1] == '$' && this.mapData[x][y-2] == '#')
-                        return true;
-                    if((this.mapData[x][y+1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y+1] == '#' && this.mapData[x-1][y] == '#'))
-                        return true;
-                    if((this.mapData[x][y-1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y-1] == '#' && this.mapData[x-1][y] == '#'))
+                    if(this.mapData[x][y-1] == '#' && (this.mapData[x+1][y] == '#' ||  this.mapData[x-1][y] == '#'))
                         return true;
                 }
             }
