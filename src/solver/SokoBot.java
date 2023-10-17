@@ -1,5 +1,7 @@
 package solver;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.Map;
 
 
@@ -9,7 +11,6 @@ public class SokoBot {
     private int height;
     private char[][] mapData;
     private char[][] itemsData;
-    public Map<State, Integer> estimatedFValue;
     private int tentativeCost;
 
     public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
@@ -37,117 +38,69 @@ public class SokoBot {
       // Initialize data structures and use width, height, mapData, and itemsData as needed.
       // ...
 
-        PriorityQueue<State> openSet = new PriorityQueue<>(new Comparator<State>() {
-            @Override
-            public int compare(State state1, State state2) {
-                // Compare states based on their estimated F-values
-                return Integer.compare(state1.getFValue(), state2.getFValue());
-            }
-        });
-      Map<State, Integer> costToReach = new HashMap<State, Integer>();
-      this.estimatedFValue = new HashMap<State, Integer>();
+        PriorityQueue<State> openSet = new PriorityQueue<>(Comparator.comparingInt(State::getHeuristic));
+
       Map<State, List<String>> actions = new HashMap<State, List<String>> ();
+      Set<State> visitedStates = new HashSet<>();
+
 
 
       // Add the initial state to the open set
       State initialState = initializeState();// Define how to initialize the initial state.
 
-      ArrayList<State> goalStates = generateGoalStates(initialState); // Define how to generate goal states.
-
-
-        ArrayList<State> visitedStates = new ArrayList<>();
-
-        for (int s = 0; s < goalStates.size(); s++)
-        {
-            for(int x = 0; x < goalStates.get(s).stateData.length; x++) {
-                for (int y = 0; y < goalStates.get(s).stateData[x].length; y++)
-                    System.out.print(goalStates.get(s).stateData[x][y]);
-                System.out.println();
-            }
-        }
 
 
         System.out.println("InState Map");
-        for(int x = 0; x < initialState.map.getItemsData().length; x++) {
-            for (int y = 0; y < initialState.map.getItemsData().length; y++)
-                System.out.print(initialState.map.getItemsData()[x][y]);
+        for(int x = 0; x < initialState.getItemsData().length; x++) {
+            for (int y = 0; y < initialState.getItemsData().length; y++)
+                System.out.print(initialState.getItemsData()[x][y]);
             System.out.println();
         }
 
-      openSet.add(initialState);
-      costToReach.put(initialState, 0);
-      estimatedFValue.put(initialState, initialState.getHeuristic());
-      actions.put(initialState, new ArrayList<>());
+        openSet.add(initialState);
+        actions.put(initialState, new ArrayList<>());
 
         System.out.println("+++++++");
-      while (!openSet.isEmpty()) {
-          State currentState = openSet.poll();
+      while (!openSet.isEmpty())
+      {
+        State currentState = openSet.remove();
 
-          while (visitedStates.contains(currentState))
-            currentState = openSet.poll();
+        visitedStates.add(initialState);
 
-          visitedStates.add(currentState);
-          System.out.println("+++++++");
-
-          visitedStates.add(currentState);
-
-        if (goalStates.contains(currentState)) {
-            System.out.println(actions.size());
-          return String.join("", actions.get(currentState));
-        }
-
-        int currentCost = cost(actions.get(currentState));
-
-        System.out.println("CurrState");
-          for(int x = 0; x < currentState.stateData.length; x++) {
-              for (int y = 0; y < currentState.stateData[x].length; y++)
-                  System.out.print(currentState.stateData[x][y]);
-              System.out.println();
+        System.out.println("+++++++");
+          if(currentState.actions != null)
+          {
+              System.out.println(currentState.actions);
           }
 
-        List<State> successors = generateSuccessors(currentState.getMap(),currentState);
+        if (currentState.isGoalState()) {
+            return currentState.actions;
+        }
 
-        for (State successor : successors) {
-            int   tentativeCost = currentCost + 1;
-          int fValue = successor.setFValue(tentativeCost);
-          System.out.println(fValue + " " + tentativeCost);
+        //int currentCost = cost(actions.get(currentState));
 
-          if (!costToReach.containsKey(successor) || tentativeCost < costToReach.get(successor)) {
-            costToReach.put(successor, tentativeCost);
-            estimatedFValue.put(successor, fValue);
+        System.out.println("CurrState");
+        for(int x = 0; x < currentState.stateData.length; x++) {
+          for (int y = 0; y < currentState.stateData[x].length; y++)
+              System.out.print(currentState.stateData[x][y]);
+          System.out.println();
+        }
 
-            List<String> successorActions = new ArrayList<>(actions.get(currentState));
-            successorActions.add(successor.getLastAction());
-            actions.put(successor, successorActions);
+        List<State> successors = generateSuccessors(currentState);
 
-            openSet.add(successor);
+        for (State successor : successors)
+        {
+            System.out.println(!visitedStates.contains(successor));
 
-              for (String actionsSSS : successorActions)
-                  System.out.println(actionsSSS);
+            if (!visitedStates.contains(successor)) {
+                successor.setHeuristic(getCost(successor, successor.goals));
+                openSet.add(successor);
+
           }
         }
       }
 
       return "lrrlrlrlrllrrlrlrlrlrlrlrr";
-    }
-
-    private ArrayList<State> generateGoalStates(State initialState) throws Exception {
-      // Implement how to generate goal states based on the itemsData.
-      // ...
-        ArrayList<State> generateGoals = new ArrayList<>();
-        State currState = new State(initialState.map, this.itemsData, this.mapData);
-
-
-        generateGoals.addAll(currState.setUltGoalState(currState.map, this.itemsData, this.mapData, width, height));
-
-        System.out.println("StateData In after Goal");
-        for(int  z= 0; z< initialState.stateData.length; z++) {
-            for (int j = 0; j < initialState.stateData.length; j++)
-                System.out.print(initialState.stateData[z][j]);
-            System.out.println();
-        }
-
-      return generateGoals;
     }
 
     private State initializeState() throws Exception {
@@ -159,75 +112,91 @@ public class SokoBot {
             System.out.println();
         }
         System.out.println("x");
-        PuzzleMap map = new PuzzleMap(this.mapData, this.itemsData, width, height);
-        for(int  z= 0; z< map.getItemsData().length; z++) {
-            for (int j = 0; j < map.getItemsData()[z].length; j++)
-                System.out.print(map.getItemsData()[z][j]);
+        for(int  z= 0; z< this.itemsData.length; z++) {
+            for (int j = 0; j < this.itemsData[z].length; j++)
+                System.out.print(this.itemsData[z][j]);
             System.out.println();
         }
         System.out.println("x");
-        return new State(map, this.itemsData, this.mapData);
+        return new State(this.itemsData, this.mapData);
     }
 
-    private ArrayList<State> generateSuccessors(PuzzleMap stateMap, State state) throws Exception {
+    private ArrayList<State> generateSuccessors(State state) throws Exception {
         ArrayList<State> newStates = new ArrayList<>();
         Position positions = new Position();
+        State origState = new State(state);
         State currState = new State(state);
-        PuzzleMap currItemData = new PuzzleMap(this.mapData, state.stateData, this.width, this.height);
+        char[][] newItemData;
+        Position playerPosition = new Position();
 
 
-        System.out.println("Reference Map");
-        for(int x = 0; x < currItemData.getItemsData().length; x++) {
-            for (int y = 0; y < currItemData.getItemsData()[x].length; y++)
-                System.out.print(currItemData.getItemsData()[x][y]);
+        System.out.println("===Reference Map====");
+        for(int x = 0; x < state.getItemsData().length; x++) {
+            for (int y = 0; y < state.getItemsData()[x].length; y++)
+                System.out.print(state.getItemsData()[x][y]);
             System.out.println();
         }
 
-        Position playerPosition = currState.player;
+        for (int y = 0; y < currState.getItemsData().length; y++)
+        {
+            for (int x = 0; x < currState.getItemsData()[y].length; x++)
+            {
+                char c = currState.getItemsData()[y][x];
+                if (c == '@' )
+                    playerPosition = new Position(x, y);
+            }
+        }
+
         int playerX = playerPosition.getX();
         int playerY = playerPosition.getY();
+
+        ArrayList<Position> boxes = new ArrayList<>();
+
+        for(int i = 0; i< currState.getItemsData().length;i++){
+            for(int j = 0; j<currState.getItemsData()[0].length;j++){
+                if (currState.getItemsData()[i][j] == '$'){
+                    boxes.add(new Position(i,j));
+                }
+            }
+        }
 
         // Define possible moves (up, down, left, right)
         int[] moveX = {0, 0, -1, 1};
         int[] moveY = {-1, 1, 0, 0};
-        String[] moveActions = {"u", "d", "l", "r"};
+        String[] moveActions = {"d", "u", "r", "l"};
 
         for (int i = 0; i < moveX.length; i++) {
             int newX = playerX + moveX[i];
             int newY = playerY + moveY[i];
+            positions = new Position(newX,newY);
 
-            currItemData = new PuzzleMap(this.mapData, state.stateData, this.width, this.height);
+            currState.setItemsData(origState.getItemsData());
 
-            int currIndex = 0;
-            for (Position box : currState.boxes)
+            int boxIndex = 0;
+            for (Position box : boxes)
             {
-                currItemData = new PuzzleMap(this.mapData, state.stateData, this.width, this.height);
                 System.out.println(box.getX() + " "+ box.getY() + " "+ newX+ " "+ newY);
-                if (box.equals(new Position(newX, newY)))
+                if (box.getX() == newX && box.getY() == newY)
                 {
-                    if (!currItemData.isWall(newX+ moveX[i], newY+ moveY[i]) && currItemData.getItemsData()[newY][newX] != '$') {
-                        positions = new Position(newX,newY);
-                        currItemData = currState.setNewPosition(currItemData, currIndex, positions, box, playerPosition, moveX[i], moveY[i]);
-                        PuzzleMap map = new PuzzleMap(currItemData);
-                        newStates.add(new State(map, currState, moveActions[i], currItemData.getItemsData()));
-                        System.out.println(currIndex);
+                    if (!currState.isWall(newX+ moveX[i], newY+ moveY[i]) && currState.getItemsData()[newY+ moveY[i]][newX+ moveX[i]] != '$') {
+                        newItemData = currState.setNewPosition(boxIndex, positions, box, playerPosition, moveX[i], moveY[i]);
+                        newStates.add(new State(currState, currState.getActions() + moveActions[i], newItemData));
+                        System.out.println(boxIndex);
+                        currState.setItemsData(origState.getItemsData());
                     }
                 }
-                currIndex++;
+                boxIndex++;
             }
 
-            if (!currItemData.isWall(newX, newY) && currItemData.getItemsData()[newY][newX] != '$') {
-                positions = new Position(newX,newY);
-                currItemData = currState.setNewPosition(currItemData, 0, positions, playerPosition, playerPosition,0, 0);
-                PuzzleMap map = new PuzzleMap(currItemData);
-                newStates.add(new State(map, currState, moveActions[i], currItemData.getItemsData()));
+            if (!currState.isWall(newX, newY) && currState.getItemsData()[newY][newX] != '$') {
+                System.out.println(newX+"Not a box"+ newY);
+                newItemData = currState.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
+                newStates.add(new State(currState, currState.getActions() + moveActions[i], newItemData));
             }
 
         }
 
         System.out.println("+++++++");
-
-
 
 
         return newStates;
@@ -236,6 +205,35 @@ public class SokoBot {
     private int cost(List<String> actions) {
       // A cost function to calculate the cost based on the number of lowercase letters in the actions.
       return (int) actions.stream().filter(action -> Character.isLowerCase(action.charAt(0))).count();
+    }
+
+    private int getCost(State currState, ArrayList<Position> goals){
+
+        int cost=0;
+        ArrayList<Position> boxes = new ArrayList<>();
+
+        for(int i = 0; i< currState.getItemsData().length;i++){
+            for(int j = 0; j<currState.getItemsData()[0].length;j++){
+                if (currState.getItemsData()[i][j] == '$'){
+                    boxes.add(new Position(i,j));
+                }
+            }
+        }
+
+        for (Position boxPos : boxes) {
+            int minDistance = Integer.MAX_VALUE;
+
+            // Calculate the Manhattan distance from the box to the closest goal
+            for (Position goalPos : goals) {
+                int distance = Math.abs(boxPos.x - goalPos.x) + Math.abs(boxPos.y - goalPos.y);
+                minDistance = Math.min(minDistance, distance);
+            }
+
+            cost += minDistance;
+        }
+
+        return cost;
+
     }
 
 

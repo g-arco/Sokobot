@@ -48,11 +48,12 @@ public class PuzzleMap {
             }
         }
 
+        /*
         for(int  z= 0; z< this.mapMatrix.length; z++) {
             for (int j = 0; j < this.mapMatrix[z].length; j++)
                 System.out.print(this.mapMatrix[z][j]);
             System.out.println();
-        }
+        }*/
 
 
     }
@@ -106,13 +107,14 @@ public class PuzzleMap {
     }
 
     public void setMapMatrix(char[][] board) {
+        /*
         System.out.println("OLD MATRIX");
         for (int i = 0; i < this.mapMatrix.length; i++)
         {
             for (int j = 0; j < this.mapMatrix[i].length; j++)
                 System.out.print(this.mapMatrix[i][j]);
             System.out.println();
-        }
+        }*/
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -147,6 +149,7 @@ public class PuzzleMap {
                 }
             }
         }
+
 
         System.out.println("NEW MATRIX");
         for (int i = 0; i < this.mapMatrix.length; i++)
