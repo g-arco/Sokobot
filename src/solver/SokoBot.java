@@ -52,20 +52,21 @@ public class SokoBot {
       // Add the initial state to the open set
       State initialState = initializeState();// Define how to initialize the initial state.
 
+      /* 
 
         System.out.println("InState Map");
         for(int x = 0; x < initialState.getItemsData().length; x++) {
             for (int y = 0; y < initialState.getItemsData()[x].length; y++)
                 System.out.print(initialState.getItemsData()[x][y]);
             System.out.println();
-        }
+        }*/
 
         initialState.setHeuristic(getCost(initialState));
         openSet.add(initialState);
         int logPrevData = 0;
 
 
-        System.out.println("+++++++");
+        //System.out.println("+++++++");
       while (!openSet.isEmpty())
       {
         State currentState = openSet.remove();
@@ -75,24 +76,27 @@ public class SokoBot {
 
         visitedStates.add(currentState);
 
-        System.out.println("+++++++");
+        /*System.out.println("+++++++");
           if(currentState.actions != null)
           {
               System.out.println(currentState.actions);
-          }
+          }*/
 
         if (currentState.isGoalState()) {
+            System.out.println("Done");
             return currentState.actions;
         }
 
         //int currentCost = cost(actions.get(currentState));
 
+        /*
         System.out.println("CurrState " + currentState.getHeuristic());
         for(int x = 0; x < currentState.getItemsData().length; x++) {
           for (int y = 0; y < currentState.getItemsData()[x].length; y++)
               System.out.print(currentState.getItemsData()[x][y]);
           System.out.println();
         }
+        */
 
 
         for (int move =0; move < 4; move++)
@@ -105,7 +109,7 @@ public class SokoBot {
 
              if (successor != null)
              {
-                 System.out.println(!visitedStates.contains(successor));
+                 //System.out.println(!visitedStates.contains(successor));
 
                  if (!visitedStates.contains(successor)) {
                      successor.setHeuristic(getCost(successor));
@@ -130,7 +134,7 @@ public class SokoBot {
     private State initializeState() throws Exception {
       // Implement how to initialize the initial state based on the mapData and itemsData.
       // ...
-        for(int  z= 0; z< mapData.length; z++) {
+/*         for(int  z= 0; z< mapData.length; z++) {
             for (int j = 0; j < mapData[z].length; j++)
                 System.out.print(mapData[z][j]);
             System.out.println();
@@ -141,7 +145,7 @@ public class SokoBot {
                 System.out.print(this.itemsData[z][j]);
             System.out.println();
         }
-        System.out.println("x");
+        System.out.println("x"); */
         return new State(this.itemsData, this.mapData, "");
     }
 
@@ -173,7 +177,7 @@ public class SokoBot {
         positions = new Position(newX,newY);
 
         if (this.mapData[newY][newX]!= '#' && currState.getItemsData()[newY][newX] != '$') {
-            System.out.println(newX+"Not a box"+ newY);
+            //System.out.println(newX+"Not a box"+ newY);
             newItemData = currState.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
             if((!newItemData.equals(prevData) || logPrevAvail == 0) && !currState.isDeadEnd(newItemData))
                 return new State(currState, currState.getActions() + moveActions[i], newItemData);
@@ -186,7 +190,7 @@ public class SokoBot {
                 return new State(currState, currState.getActions() + moveActions[i], newItemData);
         }
 
-        System.out.println("+++++++");
+        //System.out.println("+++++++");
 
         return null;
     }
@@ -240,7 +244,7 @@ public class SokoBot {
             cost += minDistance;
         }
 
-        System.out.println(cost);
+        //System.out.println(cost);
         return cost;
 
     }

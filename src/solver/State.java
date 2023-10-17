@@ -118,12 +118,12 @@ public class State{
                 {
                     if(isBox == 1)
                     {
-                        System.out.println("isBox");
+                        //System.out.println("isBox");
 
                         this.itemsData[y+boxY][x+boxX] = '$';
                         this.itemsData[keyY][keyX] = '@';
                         this.itemsData[addPos.getY()][addPos.getX()] = ' ';
-                        System.out.println(addPos.getY()+" "+addPos.getX());
+                        //System.out.println(addPos.getY()+" "+addPos.getX());
                         //this.player = newPos;
 
                         /*
@@ -132,7 +132,7 @@ public class State{
                                 System.out.print(this.itemsData[z][j]);
                             System.out.println();
                         }*/
-                        System.out.println("end.");
+                        //System.out.println("end.");
                     }
                     else
                     {
