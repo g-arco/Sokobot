@@ -151,7 +151,6 @@ public class SokoBot {
 
     private State generateSuccessors(State state, int i, char[][] prevData, int logPrevAvail) throws Exception {
 
-        char[][] newItemData;
 
         /*
         System.out.println("===Reference Map====");
@@ -177,16 +176,16 @@ public class SokoBot {
 
         if (this.mapData[newY][newX]!= '#' && state.getItemsData()[newY][newX] != '$') {
             //System.out.println(newX+"Not a box"+ newY);
-            newItemData = state.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
+            char[][] newItemData = state.setNewPosition(0, positions, playerPosition, playerPosition,0, 0);
             if(newItemData != null && (!newItemData.equals(prevData) || logPrevAvail == 0))
-                return new State(state, state.getActions() + moveActions[i], newItemData);
+                return new State(this.mapData, state.getActions() + moveActions[i], newItemData);
         }
         else if (state.getItemsData()[newY][newX] == '$'&& this.mapData[newY+moveY[i]][newX+moveX[i]] != '#' && state.getItemsData()[newY+ moveY[i]][newX+ moveX[i]] != '$')
         {
             Position box = new Position(newX+ moveX[i], newY+ moveY[i]);
-            newItemData = state.setNewPosition(1, positions, box, playerPosition, moveX[i], moveY[i]);
+            char[][] newItemData = state.setNewPosition(1, positions, box, playerPosition, moveX[i], moveY[i]);
             if(newItemData != null && (!newItemData.equals(prevData) || logPrevAvail == 0))
-                return new State(state, state.getActions() + moveActions[i], newItemData);
+                return new State(this.mapData, state.getActions() + moveActions[i], newItemData);
         }
 
         //System.out.println("+++++++");

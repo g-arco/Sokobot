@@ -12,7 +12,6 @@ public class State{
      * This will give slightly more expensive isBox/isGoal lookup but the actual runtime of those methods are small anyway
      */
     public String actions;
-    public State parent = null;
     private int heuristic = 1000;
 
     private char[][] itemsData;
@@ -21,15 +20,12 @@ public class State{
     private int fValue = 1000;
 
 
-    public State( State parent, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
+    public State(char[][] mapData, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
     {
         this.actions = newAction;
+        this.itemsData = cloneItems(stateData);
+        this.mapData = mapData;
 
-        this.itemsData = deepcloneItems(stateData);
-
-        this.mapData = parent.mapData;
-
-        this.parent = parent;
         //cacheHeuristic();
         //this.fValue = heuristic;
 
@@ -44,7 +40,7 @@ public class State{
     public State(char[][] itemsData, char[][] mapData, String actions) throws Exception
     {
         //Read in the initial position of the boxes and the player.
-        this.itemsData = deepcloneItems(itemsData);
+        this.itemsData = cloneItems(itemsData);
 
         this.mapData = mapData;
 
@@ -169,8 +165,8 @@ public class State{
         }
         return false;
     }*/
-    public char[][] deepcloneItems(char[][]stateData){
-        // get the row length and get the column length
+    public char[][] cloneItems(char[][]stateData){
+
         char[][] clone = new char[stateData.length][stateData[0].length];
         for(int i = 0; i < stateData.length; i++){
             System.arraycopy(stateData[i],0,clone[i],0,stateData[0].length);
