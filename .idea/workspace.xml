@@ -5,7 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de8f694a-05be-469c-86e7-8f0b18892a72" name="Changes" comment="heuristic changed back to manhattan works for 2,3, and fourboxes1">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/Position.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/Position.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/PuzzleMap.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/State.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +123,14 @@
       <option name="project" value="LOCAL" />
       <updated>1697602405888</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="heuristic changed back to manhattan works for 2,3, and fourboxes1">
+      <created>1697602428321</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1697602428321</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

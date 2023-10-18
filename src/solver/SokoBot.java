@@ -12,6 +12,9 @@ public class SokoBot {
     private int height;
     private char[][] mapData;
     private char[][] itemsData;
+    private int[] moveX = {0, 0, -1, 1};
+    private int[] moveY = {-1, 1, 0, 0};
+    private String[] moveActions = {"u", "d", "l", "r"};
 
     private ArrayList<Position> goals;
 
@@ -44,9 +47,7 @@ public class SokoBot {
 
         PriorityQueue<State> openSet = new PriorityQueue<>(Comparator.comparingInt(State::getHeuristic));
 
-        Map<State, List<String>> actions = new HashMap<State, List<String>> ();
-        ArrayList<State> visitedStates = new ArrayList<>();
-        String vistedActions = "";
+        ArrayList<State> visitedStates = new ArrayList<State>();
 
         // Add the initial state to the open set
         State initialState = new State(this.itemsData, this.mapData, "");// Define how to initialize the initial state.
@@ -68,18 +69,18 @@ public class SokoBot {
         //System.out.println("+++++++");
         while (!openSet.isEmpty())
         {
-            State currentState = openSet.remove();
+            State currentState = openSet.poll();
 
             if(visitedStates.contains(currentState))
                 continue;
 
             visitedStates.add(currentState);
 
-        /*System.out.println("+++++++");
+        System.out.println("****");
           if(currentState.actions != null)
           {
               System.out.println(currentState.actions);
-          }*/
+          }
 
             if (currentState.isGoalState()) {
                 System.out.println("Done");
@@ -88,29 +89,28 @@ public class SokoBot {
 
             //int currentCost = cost(actions.get(currentState));
 
-        /*
+
+            /*
+
         System.out.println("CurrState " + currentState.getHeuristic());
         for(int x = 0; x < currentState.getItemsData().length; x++) {
           for (int y = 0; y < currentState.getItemsData()[x].length; y++)
               System.out.print(currentState.getItemsData()[x][y]);
           System.out.println();
-        }
-        */
+        }*/
+
 
 
             for (int move =0; move < 4; move++)
             {
-                State successor;
-                if (logPrevData < 2)
-                    successor = generateSuccessors(currentState, move, this.itemsData, 0);
-                else
-                    successor = generateSuccessors(currentState, move, visitedStates.get(visitedStates.size()-2).getItemsData(), 1);
+                State successor = generateSuccessors(currentState, move);
 
                 if (successor != null)
                 {
-                    //System.out.println(!visitedStates.contains(successor));
+                    System.out.println("****" + openSet.size());
+                    System.out.println(!visitedStates.contains(successor));
 
-                    if (!visitedStates.contains(successor)) {
+                    if (!visitedStates.contains(logPrevData)) {
                         successor.setHeuristic(getCost(successor));
                         openSet.add(successor);
 
@@ -131,7 +131,7 @@ public class SokoBot {
     }
 
 
-    private State generateSuccessors(State state, int i, char[][] prevData, int logPrevAvail) throws Exception {
+    private State generateSuccessors(State state, int i) throws Exception {
 
         char[][] board = state.cloneItems(state.getItemsData());
         char[][] newItemData;
@@ -144,15 +144,11 @@ public class SokoBot {
             System.out.println();
         }*/
 
-        Position playerPosition = state.findPlayer(state.getItemsData());
-        int playerX = playerPosition.getX();
-        int playerY = playerPosition.getY();
+        int playerX = state.player.getX();
+        int playerY = state.player.getY();
 
 
         // Define possible moves (up, down, left, right)
-        int[] moveX = {0, 0, -1, 1};
-        int[] moveY = {-1, 1, 0, 0};
-        String[] moveActions = {"u", "d", "l", "r"};
 
         int newX = playerX + moveX[i];
         int newY = playerY + moveY[i];
@@ -160,19 +156,19 @@ public class SokoBot {
 
         if (this.mapData[newY][newX]!= '#' && board[newY][newX] != '$') {
             //System.out.println(newX+"Not a box"+ newY);
-            newItemData = state.setNewPosition(board,0, positions, playerPosition, playerPosition,0, 0);
-            if(newItemData!=null && (!newItemData.equals(prevData) || logPrevAvail == 0))
+            newItemData = state.setNewPosition(board,0, positions, state.player,0, 0);
+            if(newItemData!=null)
                 return new State(state, state.getActions() + moveActions[i], newItemData);
         }
         else if (board[newY][newX] == '$'&& this.mapData[newY+moveY[i]][newX+moveX[i]] != '#' && board[newY+ moveY[i]][newX+ moveX[i]] != '$')
         {
             Position box = new Position(newX+ moveX[i], newY+ moveY[i]);
-            newItemData = state.setNewPosition(board, 1, positions, box, playerPosition, moveX[i], moveY[i]);
-            if(newItemData!=null && (!newItemData.equals(prevData) || logPrevAvail == 0))
+            newItemData = state.setNewPosition(board, 1, positions, box, moveX[i], moveY[i]);
+            if(newItemData!=null)
                 return new State(state, state.getActions() + moveActions[i], newItemData);
         }
 
-        //System.out.println("+++++++");
+        System.out.println("+++++++");
 
         return null;
     }
@@ -197,11 +193,28 @@ public class SokoBot {
 
 
         ArrayList<Position> boxes = new ArrayList<>();
+        int obstacles = 0;
 
         for(int i = 0; i< currState.getItemsData().length;i++){
             for(int j = 0; j< currState.getItemsData()[i].length;j++){
-                if (currState.getItemsData()[i][j] == '$'){
+                if (currState.getItemsData()[i][j] == '$' && this.mapData[i][j] != '.'){
                     boxes.add(new Position(i,j));
+                    if (currState.getItemsData()[i+1][j] == '$' || this.mapData[i+1][j] == '#')
+                        obstacles++;
+                    if (currState.getItemsData()[i+1][j-1] == '$' || this.mapData[i+1][j-1] == '#')
+                        obstacles++;
+                    if (currState.getItemsData()[i+1][j+1] == '$' || this.mapData[i+1][j+1]  == '#')
+                        obstacles++;
+                    if (currState.getItemsData()[i-1][j] == '$' || this.mapData[i-1][j] == '#')
+                        obstacles++;
+                    if (currState.getItemsData()[i-1][j-1] == '$' || this.mapData[i-1][j-1]  == '#')
+                        obstacles++;
+                    if (currState.getItemsData()[i-1][j+1] == '$' || this.mapData[i-1][j+1] == '#')
+                        obstacles++;
+                    if (currState.getItemsData()[i][j+1] == '$' || this.mapData[i][j+1]== '#')
+                        obstacles++;
+                    if (currState.getItemsData()[i][j-1] == '$' || this.mapData[i][j-1] == '#')
+                        obstacles++;
                 }
             }
         }
@@ -228,7 +241,7 @@ public class SokoBot {
 
 
         //System.out.println(cost);
-        return cost;
+        return cost+obstacles;
 
     }
 
