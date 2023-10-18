@@ -12,8 +12,6 @@ public class SokoBot {
     private int height;
     private char[][] mapData;
     private char[][] itemsData;
-    private int tentativeCost;
-    private Position lastPlayerPos;
 
     private ArrayList<Position> goals;
 
