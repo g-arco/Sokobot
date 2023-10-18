@@ -78,11 +78,12 @@ public class State{
         int oldX = oldPos.getX();
         int oldY = oldPos.getY();
 
+
         /*
         System.out.println("before");
-        for(int x = 0; x < this.itemsData.length; x++) {
-            for (int y = 0; y < this.itemsData[x].length; y++)
-                System.out.print(this.itemsData[x][y]);
+        for(int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[x].length; y++)
+                System.out.print(board[x][y]);
             System.out.println();
         }*/
 
@@ -90,7 +91,7 @@ public class State{
         if(isBox == 1)
         {
             //System.out.println("isBox");
-            if(cornerDeadlock(keyY+boxY, keyX+boxX, board))
+            if(cornerDeadlock(keyY+boxY, keyX+boxX) && this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
 
             board[keyY+boxY][keyX+boxX] = '$';
@@ -147,15 +148,15 @@ public class State{
         return clone;
     }
 
-    public boolean cornerDeadlock(int y, int x, char[][] board) {
+    public boolean cornerDeadlock(int y, int x) {
         // Checks if box is corner_deadlock, BUT NOT AT GOAL STATE!!, using both the dimensions of map and the obstacles
 
-        boolean upBlock = ((this.mapData[y-1][x] == '#' || board[y-1][x] == '$') && this.mapData[y-1][x] != '.');
-        boolean downBlock = ((this.mapData[y+1][x] == '#' || board[y+1][x] == '$') && this.mapData[y+1][x] != '.');
-        boolean leftBlock = ((this.mapData[y][x-1] == '#' || board[y][x-1] == '$') && this.mapData[y][x-1] != '.');
-        boolean rightBlock = ((this.mapData[y][x+1] == '#' || board[y][x+1] == '$') && this.mapData[y][x+1] != '.');
+        boolean upBlock = (this.mapData[y-1][x] == '#');
+        boolean downBlock = (this.mapData[y+1][x] == '#' );
+        boolean leftBlock = (this.mapData[y][x-1] == '#' );
+        boolean rightBlock = (this.mapData[y][x+1] == '#');
 
-        System.out.println(upBlock + " " + downBlock + " " + leftBlock + " " + rightBlock);
+        //System.out.println(upBlock + " " + downBlock + " " + leftBlock + " " + rightBlock);
         return (upBlock || downBlock) && (leftBlock || rightBlock);
     }
 

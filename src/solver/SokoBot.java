@@ -18,6 +18,10 @@ public class SokoBot {
 
     private ArrayList<Position> goals;
 
+    private int INITIAL_COST = 10000;
+    private int base_cost = INITIAL_COST;
+    private int DEC_COST = 100;
+
     public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData){
         this.width = width;
         this.height = height;
@@ -47,7 +51,7 @@ public class SokoBot {
 
         PriorityQueue<State> openSet = new PriorityQueue<>(Comparator.comparingInt(State::getHeuristic));
 
-        ArrayList<State> visitedStates = new ArrayList<State>();
+        HashSet<State> visitedStates = new HashSet<State>();
 
         // Add the initial state to the open set
         State initialState = new State(this.itemsData, this.mapData, "");// Define how to initialize the initial state.
@@ -63,7 +67,6 @@ public class SokoBot {
 
         initialState.setHeuristic(getCost(initialState));
         openSet.add(initialState);
-        int logPrevData = 0;
 
 
         //System.out.println("+++++++");
@@ -74,13 +77,12 @@ public class SokoBot {
             if(visitedStates.contains(currentState))
                 continue;
 
-            visitedStates.add(currentState);
-
+            /*
         System.out.println("****");
           if(currentState.actions != null)
           {
               System.out.println(currentState.actions);
-          }
+          }*/
 
             if (currentState.isGoalState()) {
                 System.out.println("Done");
@@ -101,18 +103,22 @@ public class SokoBot {
 
 
 
+            int succNo = 0;
+            base_cost = base_cost - DEC_COST;
             for (int move =0; move < 4; move++)
             {
                 State successor = generateSuccessors(currentState, move);
 
                 if (successor != null)
                 {
+                    /*
                     System.out.println("****" + openSet.size());
-                    System.out.println(!visitedStates.contains(successor));
+                    System.out.println(!visitedStates.contains(successor));*/
 
                     if (!visitedStates.contains(successor)) {
                         successor.setHeuristic(getCost(successor));
                         openSet.add(successor);
+                        succNo++;
 
                      /*
                      for(int x = 0; x < successor.getItemsData().length; x++) {
@@ -124,7 +130,8 @@ public class SokoBot {
                 }
             }
 
-            logPrevData++;
+            if (succNo > 0)
+                visitedStates.add(currentState);
         }
 
         return "lrrlrlrlrllrrlrlrlrlrlrlrr";
@@ -168,7 +175,7 @@ public class SokoBot {
                 return new State(state, state.getActions() + moveActions[i], newItemData);
         }
 
-        System.out.println("+++++++");
+        //System.out.println("no successor generated");
 
         return null;
     }
@@ -190,7 +197,6 @@ public class SokoBot {
     private int getCost(State currState){
 
         int cost= 0;
-
 
         ArrayList<Position> boxes = new ArrayList<>();
         int obstacles = 0;
@@ -220,7 +226,7 @@ public class SokoBot {
         }
 
         for (Position boxPos : boxes) {
-            int minDistance = Integer.MAX_VALUE;
+            int minDistance = 1000;
 
             // Calculate the Manhattan distance from the box to the closest goal
             for (Position goalPos : this.goals) {
