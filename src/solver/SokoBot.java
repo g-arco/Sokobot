@@ -110,7 +110,7 @@ public class SokoBot {
                     System.out.println("****" + openSet.size());
                     System.out.println(!visitedStates.contains(successor));
 
-                    if (!visitedStates.contains(logPrevData)) {
+                    if (!visitedStates.contains(successor)) {
                         successor.setHeuristic(getCost(successor));
                         openSet.add(successor);
 

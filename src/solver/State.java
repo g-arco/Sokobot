@@ -12,6 +12,7 @@ public class State{
      * This will give slightly more expensive isBox/isGoal lookup but the actual runtime of those methods are small anyway
      */
     public String actions;
+    public Position player;
     public State parent = null;
     private int heuristic = 1000;
 
@@ -27,6 +28,7 @@ public class State{
         this.itemsData = cloneItems(stateData);
         this.mapData = parent.mapData;
         this.parent = parent;
+        this.player = findPlayer(stateData);
 
         //cacheHeuristic();
         //this.fValue = heuristic;
@@ -45,6 +47,8 @@ public class State{
         this.itemsData = cloneItems(itemsData);
         this.mapData = mapData;
         this.actions = actions;
+
+        this.player = findPlayer(itemsData);
 
         //cacheHeuristic();
         //this.fValue = heuristic;
@@ -67,7 +71,7 @@ public class State{
     }
 
 
-    public char[][] setNewPosition(char[][] board, int isBox, Position newPos, Position oldPos, Position addPos, int boxX, int boxY){
+    public char[][] setNewPosition(char[][] board, int isBox, Position newPos, Position oldPos, int boxX, int boxY){
 
         int keyX = newPos.getX();
         int keyY = newPos.getY();
@@ -86,18 +90,12 @@ public class State{
         if(isBox == 1)
         {
             //System.out.println("isBox");
-            if((this.mapData[keyY+boxY][keyX+boxX+1] == '#') &&
-                    (this.mapData[keyY+boxY+1][keyX+boxX] == '#'|| this.mapData[keyY+boxY-1][keyX+boxX] == '#')  &&
-                    this.mapData[keyY+boxY][keyX+boxX] != '.')
-                return null;
-            if((this.mapData[keyY+boxY][keyX+boxX-1] == '#')&&
-                    (this.mapData[keyY+boxY+1][keyX+boxX] == '#' ||  this.mapData[keyY+boxY-1][keyX+boxX] == '#') &&
-                    this.mapData[keyY+boxY][keyX+boxX] != '.')
+            if(cornerDeadlock(keyY+boxY, keyX+boxX, board))
                 return null;
 
             board[keyY+boxY][keyX+boxX] = '$';
             board[keyY][keyX] = '@';
-            board[addPos.getY()][addPos.getX()] = ' ';
+            board[player.getY()][player.getX()] = ' ';
             //System.out.println(addPos.getY()+" "+addPos.getX());
             //this.player = newPos;
 
@@ -149,33 +147,33 @@ public class State{
         return clone;
     }
 
-    public boolean isDeadEnd(char[][] stateData){
-        // get the row length and get the column length
-        int deadEnd = 0;
+    public boolean cornerDeadlock(int y, int x, char[][] board) {
+        // Checks if box is corner_deadlock, BUT NOT AT GOAL STATE!!, using both the dimensions of map and the obstacles
 
-        for(int x = 0; x < stateData.length; x++) {
-            for (int y = 0; y < stateData[x].length; y++)
-            {
-                if (stateData[x][y] == '$' && this.mapData[x][y] != '.')
-                {
-                    if(this.mapData[x+1][y] == '$' && this.mapData[x+2][y] == '#')
-                        return true;
-                    if(this.mapData[x-1][y] == '$' && this.mapData[x-2][y] == '#')
-                        return true;
-                    if(this.mapData[x][y+1] == '$' && this.mapData[x][y+2] == '#')
-                        return true;
-                    if(this.mapData[x][y-1] == '$' && this.mapData[x][y-2] == '#')
-                        return true;
-                    if((this.mapData[x][y+1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y+1] == '#' && this.mapData[x-1][y] == '#'))
-                        return true;
-                    if((this.mapData[x][y-1] == '#' && this.mapData[x+1][y] == '#') || (this.mapData[x][y-1] == '#' && this.mapData[x-1][y] == '#'))
-                        return true;
-                }
-            }
-        }
+        boolean upBlock = ((this.mapData[y-1][x] == '#' || board[y-1][x] == '$') && this.mapData[y-1][x] != '.');
+        boolean downBlock = ((this.mapData[y+1][x] == '#' || board[y+1][x] == '$') && this.mapData[y+1][x] != '.');
+        boolean leftBlock = ((this.mapData[y][x-1] == '#' || board[y][x-1] == '$') && this.mapData[y][x-1] != '.');
+        boolean rightBlock = ((this.mapData[y][x+1] == '#' || board[y][x+1] == '$') && this.mapData[y][x+1] != '.');
 
-        return false;
+        System.out.println(upBlock + " " + downBlock + " " + leftBlock + " " + rightBlock);
+        return (upBlock || downBlock) && (leftBlock || rightBlock);
     }
+
+    /*
+    public boolean edgeDeadlock(int y, int x) {
+        // Checks if there is a deadlock due to map walls on a box and a possible storage point
+
+        // Check if box is either at the leftmost or rightmost wall, and check if storage is not along that wall
+        for (char sideWall : this.mapData[y])
+        if ((box[0] == 0 || box[0] == state.getWidth() - 1) && (box[0] - storage[0] != 0)) {
+            return true;
+        }
+        // Check if box is either at the topmost or bottommost wall, and check if storage is not along that wall
+        else if ((box[1] == state.getHeight() - 1 || box[1] == 0) && (box[1] - storage[1] != 0)) {
+            return true;
+        }
+        return false;
+    }*/
 
 
     public int getfValue() {
@@ -208,17 +206,18 @@ public class State{
     }
 
 
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof State other) {
-            return this.heuristic == other.heuristic && java.util.Arrays.deepEquals(this.itemsData, other.itemsData);
+            return this.heuristic == other.heuristic && java.util.Arrays.deepEquals(this.itemsData, ((State) obj).itemsData);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return java.util.Arrays.deepHashCode(itemsData)+this.heuristic+this.actions.length();
+        return java.util.Arrays.deepHashCode(itemsData)+this.heuristic;
     }
 
 
