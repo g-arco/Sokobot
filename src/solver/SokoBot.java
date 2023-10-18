@@ -17,7 +17,7 @@ public class SokoBot {
 
     private ArrayList<Position> goals;
 
-    public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData) {
+    public String solveSokobanPuzzle(int width, int height, char[][] mapData, char[][] itemsData){
         this.width = width;
         this.height = height;
         this.mapData = mapData;
@@ -40,6 +40,9 @@ public class SokoBot {
     public String solveSokobanAStar() throws Exception {
         // Initialize data structures and use width, height, mapData, and itemsData as needed.
         // ...
+
+        this.goals = new ArrayList<>();
+        findGoals(mapData);
 
         PriorityQueue<State> openSet = new PriorityQueue<>(Comparator.comparingInt(State::getHeuristic));
 
@@ -176,11 +179,25 @@ public class SokoBot {
         return null;
     }
 
+    private void findGoals(char[][] board) throws Exception
+    {
+        for (int y = 0; y < board.length; y++)
+        {
+            for (int x = 0; x < board[y].length; x++)
+            {
+                char c = board[y][x];
+                if (c == '.' )
+                    this.goals.add(new Position(x, y));
+            }
+        }
+    }
+
 
     private int getCost(State currState){
 
         int cost= 0;
-        /*
+
+
         ArrayList<Position> boxes = new ArrayList<>();
 
         for(int i = 0; i< currState.getItemsData().length;i++){
@@ -202,14 +219,14 @@ public class SokoBot {
             }
 
             cost += minDistance;
-        }*/
-        for(int i = 0; i< currState.getItemsData().length;i++){
-            for(int j = 0; j< currState.getItemsData()[i].length;j++){
-                if (currState.getItemsData()[i][j] == '$' && this.mapData[i][j] != '.'){
-                    cost++;
-                }
-            }
         }
+        /*
+        for (Position goalPos : this.goals) {
+            if (currState.getItemsData()[goalPos.getY()][goalPos.getY()] != '$' ) {
+                cost++;
+            }
+        }*/
+
 
 
         //System.out.println(cost);

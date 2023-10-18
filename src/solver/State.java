@@ -21,15 +21,13 @@ public class State{
     private int fValue = 1000;
 
 
-    public State( State parent, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
+    public State(State parent, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
     {
         this.actions = newAction;
-
         this.itemsData = cloneItems(stateData);
-
         this.mapData = parent.mapData;
-
         this.parent = parent;
+
         //cacheHeuristic();
         //this.fValue = heuristic;
 
@@ -45,10 +43,9 @@ public class State{
     {
         //Read in the initial position of the boxes and the player.
         this.itemsData = cloneItems(itemsData);
-
         this.mapData = mapData;
-
         this.actions = actions;
+
         //cacheHeuristic();
         //this.fValue = heuristic;
     }
@@ -89,11 +86,11 @@ public class State{
         if(isBox == 1)
         {
             //System.out.println("isBox");
-            if((this.mapData[keyY+boxY][keyX+boxX+1] == '#' || this.mapData[keyY+boxY][keyX+boxX+1] == '$') &&
+            if((this.mapData[keyY+boxY][keyX+boxX+1] == '#') &&
                     (this.mapData[keyY+boxY+1][keyX+boxX] == '#'|| this.mapData[keyY+boxY-1][keyX+boxX] == '#')  &&
                     this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
-            if((this.mapData[keyY+boxY][keyX+boxX-1] == '#' || this.mapData[keyY+boxY][keyX+boxX+1] == '$')&&
+            if((this.mapData[keyY+boxY][keyX+boxX-1] == '#')&&
                     (this.mapData[keyY+boxY+1][keyX+boxX] == '#' ||  this.mapData[keyY+boxY-1][keyX+boxX] == '#') &&
                     this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
@@ -143,34 +140,11 @@ public class State{
         return true;
     }
 
-
-
-
-    /*
-    public boolean isFree(int x, int y)
-    {
-
-        return (!this.isWall(x, y) && !this.isBox(x, y));
-    }*/
-
-    /*
-    is* functions for convenience in this class which only forwards
-
-    public boolean isBox(int x, int y)
-    {
-        for (int ii = 0; ii < boxes.size(); ++ii)
-        {
-            Position pos = boxes.get(ii);
-            if (x == pos.x & y == pos.y)
-                return true;
-        }
-        return false;
-    }*/
-    public char[][] cloneItems(char[][]arrSRC){
+    public char[][] cloneItems(char[][] board){
         // get the row length and get the column length
-        char[][] clone = new char[arrSRC.length][arrSRC[0].length];
-        for(int i = 0; i < arrSRC.length; i++){
-            System.arraycopy(arrSRC[i],0,clone[i],0,arrSRC[0].length);
+        char[][] clone = new char[board.length][board[0].length];
+        for(int i = 0; i < board.length; i++){
+            System.arraycopy(board[i],0,clone[i],0,board[0].length);
         }
         return clone;
     }
@@ -203,10 +177,6 @@ public class State{
         return false;
     }
 
-    public boolean isWall(int x, int y)
-    {
-        return (this.mapData[y][x] == '#');
-    }
 
     public int getfValue() {
         return fValue;
@@ -237,60 +207,18 @@ public class State{
         return actions;
     }
 
-    /**
-     *
-     * @return A string to be used when debugging the AI
-
-    public String toString()
-    {
-    String stringOut = "";
-    boolean boxBool, playerBool;
-    for (int i = 0; i < map.getHeight(); i++) { // For y-coordinates
-    for (int j = 0; j < map.getWidth(); j++) { // For x-coordinates
-    // See if there is a box with these exact coordinates
-    boxBool = false;
-    playerBool = false;
-    for (Position box : boxes) {
-    if (box.x == j & box.y == i) {
-    boxBool = true;
-    }
-    }
-    // See if there is a player with these exact coordinates
-    if (player.x == j & player.y == i) {
-    playerBool = true;
-    }
-    // Add to the string
-    if (boxBool & map.mapMatrix[i][j] == '.') {
-    stringOut += '*';
-    } else if (playerBool & map.mapMatrix[i][j] == '.') {
-    stringOut += '+';
-    } else if (playerBool){
-    stringOut += '@';
-    } else if (boxBool) {
-    stringOut += '$';
-    } else {
-    stringOut += map.mapMatrix[i][j];
-    }
-    }
-    if (i < map.getHeight()-1) { // No new line on last line
-    stringOut += System.getProperty("line.separator"); // New line
-    }
-    }
-    return stringOut;
-    }
-     */
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof State other) {
-            return java.util.Arrays.deepEquals(this.itemsData, other.itemsData);
+            return this.heuristic == other.heuristic && java.util.Arrays.deepEquals(this.itemsData, other.itemsData);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return java.util.Arrays.deepHashCode(itemsData);
+        return java.util.Arrays.deepHashCode(itemsData)+this.heuristic+this.actions.length();
     }
 
 
