@@ -5,12 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This will be the class that will handle the state representations
+ */
 public class State{
-
-    /**
-     * Store boxes and goals in simple list to save memory and allow iteration
-     * This will give slightly more expensive isBox/isGoal lookup but the actual runtime of those methods are small anyway
-     */
     public String actions;
     public Position player;
     public State parent = null;
@@ -22,6 +20,13 @@ public class State{
     private int fValue = 1000;
 
 
+    /**
+     * This constructor is for the successors
+     * @param parent the previous state
+     * @param newAction the previous actions plus the new move
+     * @param stateData the new STATE REPRESENTATION
+     * @throws Exception
+     */
     public State(State parent, String newAction, char[][] stateData) throws Exception//More parameters for player and boxes
     {
         this.actions = newAction;
@@ -30,32 +35,32 @@ public class State{
         this.parent = parent;
         this.player = findPlayer(stateData);
 
-        //cacheHeuristic();
-        //this.fValue = heuristic;
-
-        /*
-        for(int  z= 0; z< map.getMapMatrix().length; z++) {
-            for (int j = 0; j < map.getMapMatrix()[z].length; j++)
-                System.out.print(map.getMapMatrix()[z][j]);
-            System.out.println();
-        }*/
     }
 
+    /**
+     * This constructor is for the initial state
+     * @param itemsData the STATE REPRESENTATION
+     * @param mapData the one to reference the walls and goal position
+     * @param actions the string to be used to track the actions
+     * @throws Exception
+     */
     public State(char[][] itemsData, char[][] mapData, String actions) throws Exception
     {
-        //Read in the initial position of the boxes and the player.
         this.itemsData = cloneItems(itemsData);
         this.mapData = mapData;
         this.actions = actions;
 
         this.player = findPlayer(itemsData);
 
-        //cacheHeuristic();
-        //this.fValue = heuristic;
     }
 
 
-
+    /**
+     * This method finds the player in the board
+     * @param board the itemsData with information about the player position
+     * @return the Position (of the player)
+     * @throws Exception
+     */
     public Position findPlayer(char[][] board) throws Exception
     {
         for (int y = 0; y < board.length; y++)
@@ -70,7 +75,16 @@ public class State{
         throw new Exception("Could not find the player in the board");
     }
 
-
+    /**
+     * This method is used for generating a new successor by moving the position of player and a box
+     * @param board the itemsData of reference state
+     * @param isBox if it involves moving a box
+     * @param newPos the new player position
+     * @param oldPos the old player position
+     * @param boxX to move the box in X position
+     * @param boxY to move the box in Y position
+     * @return
+     */
     public char[][] setNewPosition(char[][] board, int isBox, Position newPos, Position oldPos, int boxX, int boxY){
 
         int keyX = newPos.getX();
@@ -78,50 +92,21 @@ public class State{
         int oldX = oldPos.getX();
         int oldY = oldPos.getY();
 
-
-        /*
-        System.out.println("before");
-        for(int x = 0; x < board.length; x++) {
-            for (int y = 0; y < board[x].length; y++)
-                System.out.print(board[x][y]);
-            System.out.println();
-        }*/
-
-
+        //repositions old data
         if(isBox == 1)
         {
-            //System.out.println("isBox");
             if(cornerDeadlock(keyY+boxY, keyX+boxX) && this.mapData[keyY+boxY][keyX+boxX] != '.')
                 return null;
 
             board[keyY+boxY][keyX+boxX] = '$';
             board[keyY][keyX] = '@';
             board[player.getY()][player.getX()] = ' ';
-            //System.out.println(addPos.getY()+" "+addPos.getX());
-            //this.player = newPos;
-
-            /*
-            for(int z = 0; z < this.itemsData.length; z++) {
-                for (int j = 0; j < this.itemsData[z].length; j++)
-                    System.out.print(this.itemsData[z][j]);
-                System.out.println();
-            }*/
-            //System.out.println("end.");
         }
         else
         {
 
             board[keyY][keyX] = '@';
             board[oldY][oldX] = ' ';
-            //this.player = newPos;
-
-            /*
-            for(int z = 0; z < this.itemsData.length; z++) {
-                for (int j = 0; j < this.itemsData[z].length; j++)
-                    System.out.print(this.itemsData[z][j]);
-                System.out.println();
-            }*/
-
         }
 
 
@@ -130,6 +115,10 @@ public class State{
     }
 
 
+    /**
+     * This checks if the state is considered as a goal state
+     * @return if it is goal state or not
+     */
     public boolean isGoalState(){
         for(int i = 0; i < this.mapData.length; i++)
             for (int j = 0; j < this.mapData[i].length; j++)
@@ -139,6 +128,11 @@ public class State{
         return true;
     }
 
+    /**
+     * This method deep clones itemsData
+     * @param board the itemsData you want to clone
+     * @return
+     */
     public char[][] cloneItems(char[][] board){
         // get the row length and get the column length
         char[][] clone = new char[board.length][board[0].length];
@@ -148,66 +142,59 @@ public class State{
         return clone;
     }
 
+    /**
+     * This method checks if the state is in a corner deadlock (means it is a dead end)
+     * @param y the Y position
+     * @param x the X position
+     * @return if it is a deadlock or not
+     */
     public boolean cornerDeadlock(int y, int x) {
-        // Checks if box is corner_deadlock, BUT NOT AT GOAL STATE!!, using both the dimensions of map and the obstacles
 
         boolean upBlock = (this.mapData[y-1][x] == '#');
         boolean downBlock = (this.mapData[y+1][x] == '#' );
         boolean leftBlock = (this.mapData[y][x-1] == '#' );
         boolean rightBlock = (this.mapData[y][x+1] == '#');
 
-        //System.out.println(upBlock + " " + downBlock + " " + leftBlock + " " + rightBlock);
         return (upBlock || downBlock) && (leftBlock || rightBlock);
     }
 
-    /*
-    public boolean edgeDeadlock(int y, int x) {
-        // Checks if there is a deadlock due to map walls on a box and a possible storage point
 
-        // Check if box is either at the leftmost or rightmost wall, and check if storage is not along that wall
-        for (char sideWall : this.mapData[y])
-        if ((box[0] == 0 || box[0] == state.getWidth() - 1) && (box[0] - storage[0] != 0)) {
-            return true;
-        }
-        // Check if box is either at the topmost or bottommost wall, and check if storage is not along that wall
-        else if ((box[1] == state.getHeight() - 1 || box[1] == 0) && (box[1] - storage[1] != 0)) {
-            return true;
-        }
-        return false;
-    }*/
-
-
-    public int getfValue() {
-        return fValue;
-    }
-
-    public void setFValue(int fValue) {
-        this.fValue = fValue;
-    }
-
+    /**
+     * Sets the state's heuristic
+     * @param heuristic
+     */
     public void setHeuristic(int heuristic) {
         this.heuristic = heuristic;
     }
 
+    /**
+     * Gets the state's heuristic
+     * @return
+     */
     public int getHeuristic() {
         return heuristic;
     }
 
 
+    /**
+     * Gets the state's itemsData
+     * @return itemsData
+     */
     public char[][] getItemsData() {
         return itemsData;
     }
 
-    public char[][] getMapData() {
-        return mapData;
-    }
 
+    /**
+     * Gets the state's actions recorded
+     * @return
+     */
     public String getActions() {
         return actions;
     }
 
 
-
+    //in order to prevent state duplicates
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof State other) {

@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de8f694a-05be-469c-86e7-8f0b18892a72" name="Changes" comment="works for 2,3, and fourboxes1, fiveboxes2">
+    <list default="true" id="de8f694a-05be-469c-86e7-8f0b18892a72" name="Changes" comment="works for 2,3,4,5,and original1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/Position.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/Position.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/solver/Position.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/Position.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/SokoBot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/SokoBot.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/solver/State.class" beforeDir="false" afterPath="$PROJECT_DIR$/src/solver/State.class" afterDir="false" />
@@ -142,7 +144,14 @@
       <option name="project" value="LOCAL" />
       <updated>1697638884543</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="works for 2,3,4,5,and original1">
+      <created>1697643599737</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1697643599737</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -168,6 +177,7 @@
     <MESSAGE value="heuristic is no of crates not on gal works for 2,3, and fourboxes1" />
     <MESSAGE value="heuristic changed back to manhattan works for 2,3, and fourboxes1" />
     <MESSAGE value="works for 2,3, and fourboxes1, fiveboxes2" />
-    <option name="LAST_COMMIT_MESSAGE" value="works for 2,3, and fourboxes1, fiveboxes2" />
+    <MESSAGE value="works for 2,3,4,5,and original1" />
+    <option name="LAST_COMMIT_MESSAGE" value="works for 2,3,4,5,and original1" />
   </component>
 </project>
